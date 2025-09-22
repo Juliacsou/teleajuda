@@ -1,7 +1,7 @@
-import pessoa.Funcionario;
-import pessoa.Paciente;
+package br.com.fiap.teleajuda.domain.model;
 
-import java.util.Date;
+import br.com.fiap.teleajuda.domain.model.pessoa.Funcionario;
+import br.com.fiap.teleajuda.domain.model.pessoa.Paciente;
 
 public class Ticket {
     private int codigo;

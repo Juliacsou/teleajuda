@@ -1,4 +1,6 @@
-import pessoa.Paciente;
+package br.com.fiap.teleajuda.domain.model;
+
+import br.com.fiap.teleajuda.domain.model.pessoa.Paciente;
 
 public class PesquisaSatisfacao {
     private int codigo;

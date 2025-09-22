@@ -1,5 +1,4 @@
-package pessoa;
-import filial.Filial;
+package br.com.fiap.teleajuda.domain.model.pessoa;
 
 public class Pessoa {
     private String nome;

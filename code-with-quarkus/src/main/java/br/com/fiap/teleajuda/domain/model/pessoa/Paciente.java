@@ -1,19 +1,16 @@
-package pessoa;
-import filial.Filial;
+package br.com.fiap.teleajuda.domain.model.pessoa;
 
 public class Paciente extends Pessoa {
     private int rghc;
     private String telefone;
     private String data_nasc;
-    private Filial filial;
-
+ 
     //Construtor
-    public Paciente(String nome, String email, User user, int rghc, String telefone, String data_nasc, Filial filial) {
+    public Paciente(String nome, String email, User user, int rghc, String telefone, String data_nasc) {
         super(nome, email, user);
         this.rghc = rghc;
         this.telefone = telefone;
         this.data_nasc = data_nasc;
-        this.filial = filial;
     }
 
     //Getter e Setters
@@ -23,8 +20,6 @@ public class Paciente extends Pessoa {
     public void setTelefone(String telefone) {this.telefone = telefone;}
     public String getData_nasc() {return data_nasc;}
     public void setData_nasc(String data_nasc) {this.data_nasc = data_nasc;}
-    public Filial getFilial() {return filial;}
-    public void setFilial(Filial filial) {this.filial = filial;}
 
     public void exibirPaciente() {
         System.out.println("Nome: " + getNome());
@@ -32,6 +27,5 @@ public class Paciente extends Pessoa {
         System.out.println("Email: " + getEmail());
         System.out.println("Telefone: " + getTelefone());
         System.out.println("Data de Nascimento: " + getData_nasc());
-        System.out.println("Filial: " + getFilial().getNome());
     }
 }

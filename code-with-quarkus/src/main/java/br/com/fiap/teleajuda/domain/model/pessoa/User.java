@@ -1,4 +1,4 @@
-package pessoa;
+package br.com.fiap.teleajuda.domain.model.pessoa;
 
 public class User {
     private String user;
