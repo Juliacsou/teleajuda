@@ -5,6 +5,6 @@ import br.com.fiap.teleajuda.domain.model.pessoa.Paciente;
 
 public interface PacienteRepository {
     Paciente criar(Paciente paciente);
-    Paciente buscarPorCpf(String cpf) throws EntidadeNaoLocalizada;
-    Paciente editar(Paciente paciente);
+    Paciente buscarPorRGHC(int rghc) throws EntidadeNaoLocalizada;
+    void editar(Paciente paciente);
 }

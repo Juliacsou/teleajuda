@@ -25,27 +25,71 @@ public class JdbcFuncionarioReposirory implements FuncionarioRepository {
             try (Connection conn = this.databaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
                 
                 stmt.setInt(1, funcionario.getCodigo());
-                
-                
-                return funcionario
+                stmt.setString(2, funcionario.getNome());
+                stmt.setString(3, funcionario.getEmail());
 
-             }catch (SQLException e) {
-            throw new UnsupportedOperationException("Unimplemented method 'criar'");
-        }
-            // TODO Auto-generated method stub
-            
-        }
+                int affectedRows = stmt.executeUpdate();
+                if (affectedRows == 0){
+                    throw new UnsupportedOperationException("Erro ao salvar, nenhuma linha do banco foi alterada");
+                }
 
-        @Override
-        public Funcionario buscarPorCodigo(String codigo) throws EntidadeNaoLocalizada {
-            // TODO Auto-generated method stub
-            throw new UnsupportedOperationException("Unimplemented method 'buscarPorCodigo'");
+                return funcionario;
+
+            }catch (SQLException e) {
+            throw new UnsupportedOperationException("Erro ao salvaro o cliente");
+            } 
         }
 
         @Override
-        public Funcionario editar(Funcionario funcionario) {
-            // TODO Auto-generated method stub
-            throw new UnsupportedOperationException("Unimplemented method 'editar'");
+        public Funcionario buscarPorCodigo(String id) throws EntidadeNaoLocalizada {
+            String sqlFunc = """
+                SELECT ID, NOME, EMAIL FROM FUNCIONARIO WHERE ID = ?
+                """;
+
+            try (Connection conn = this.databaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sqlFunc)) {
+
+            stmt.setString(1, id);
+            ResultSet resultSet = stmt.executeQuery();
+
+                if (resultSet.next()) {
+                    int idFromBd = resultSet.getInt("ID");
+                    String nome = resultSet.getString("NOME");
+                    String email = resultSet.getString("EMAIL");
+
+                    resultSet.close();
+
+                    return new Funcionario(nome, email, null, idFromBd);
+                }
+            } catch (SQLException e) {
+                throw new EntidadeNaoLocalizada("Erro ao buscar funcionário por id", e);
+            }
+
+            throw new EntidadeNaoLocalizada("Funcionario nao encontrado");
+        }
+
+        @Override
+        public void editar(Funcionario funcionario) {
+            String sql = """
+                UPDATE FUNCIONARIO SET NOME = ?, EMAIL = ?
+                WHERE ID = ?
+                """;
+
+            try (Connection conn = databaseConnection.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+                stmt.setString(1, funcionario.getNome());
+                stmt.setString(2, funcionario.getEmail());
+                stmt.setLong(3, funcionario.getCodigo());
+
+                int affectedRows = stmt.executeUpdate();
+                if (affectedRows == 0) {
+                    throw new InfraestruturaException("Erro ao editar funcionario, nenhuma linha foi afetada");
+                }
+
+            } catch (SQLException e) {
+                throw new InfraestruturaException("Erro ao editar funcionario", e);
+            }
         }
 
     
