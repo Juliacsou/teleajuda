@@ -14,10 +14,4 @@ public class Funcionario extends Pessoa {
     public int getCodigo() {return codigo;}
     public void setCodigo(int codigo) {this.codigo = codigo;}
 
-    //Metodos
-    public void exibirFuncionario(){
-        System.out.println("Nome: " + getNome());
-        System.out.println("Email: " + getEmail());
-        System.out.println("Codigo: " + getCodigo());
-    }
 }

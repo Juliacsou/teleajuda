@@ -5,6 +5,6 @@ import br.com.fiap.teleajuda.domain.model.pessoa.User;
 
 public interface UserRepository {
     User criar(User user);
-    User buscarUser(String id) throws EntidadeNaoLocalizada;
+    User buscarUser(int id) throws EntidadeNaoLocalizada;
     void editar(User user);
 }

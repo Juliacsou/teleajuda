@@ -15,26 +15,27 @@ public class JdbcTicketReposirory implements TicketRepository {
 
         private DatabaseConnection databaseConnection;
 
-        public void JdbcClienteRepository(DatabaseConnection databaseConnection) {
+        public void JdbcTicketRepository(DatabaseConnection databaseConnection) {
             this.databaseConnection = databaseConnection;
         }
 
         @Override
         public Ticket criar(Ticket ticket) {
             String sql = """
-                INSERT INTO TICKET (ID, TEMA, PROBLEMA, SOLUCIONADO, DATA)
-                VALUES (?, ?, ?, ?, ?)
+                INSERT INTO TICKET (ID_TICKET, ASSUNTO, DESCRICAO, STATUS, DT_ABERTURA, CPF_PACIENTE)
+                VALUES (?, ?, ?, ?, ?, ?)
                 """;
 
         try (Connection conn = this.databaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, ticket.getCodigo());
-            stmt.setString(2, ticket.getTema());
-            stmt.setString(3, ticket.getProblema());
-            stmt.setBoolean(4, ticket.isSolucionado());
+            stmt.setString(2, ticket.getAssunto());
+            stmt.setString(3, ticket.getDescricao());
+            stmt.setBoolean(4, ticket.getStatus());
             Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
             stmt.setTimestamp(5, currentTimestamp);
+            stmt.setString(6, ticket.getPaciente().getCpf());
 
             int affectedRows = stmt.executeUpdate();
             if (affectedRows == 0) {
@@ -51,7 +52,7 @@ public class JdbcTicketReposirory implements TicketRepository {
         @Override
         public Ticket buscarPorId(int id) throws EntidadeNaoLocalizada {
             String sql = """
-                SELECT ID, TEMA, PROBLEMA, RESPOSTA, SOLUCIONADO, DATA FROM TICKET WHERE ID = ?
+                SELECT ID_TICKET, ASSUNTO, DESCRICAO, RESPOSTA, STATUS, DATA FROM TICKET WHERE ID_TICKET = ?
                 """;
 
         try (Connection conn = this.databaseConnection.getConnection();
@@ -61,16 +62,15 @@ public class JdbcTicketReposirory implements TicketRepository {
 
             ResultSet resultSet = stmt.executeQuery();
             if (resultSet.next()) {
-                int idFromBd = resultSet.getInt("ID");
-                String tema = resultSet.getString("TEMA");
-                String problema = resultSet.getString("PROBLEMA");
+                int idFromBd = resultSet.getInt("ID_TICKET");
+                String assunto = resultSet.getString("ASSUNTO");
+                String descricao = resultSet.getString("DESCRICAO");
                 String resposta = resultSet.getString("RESPOSTA");
-                Boolean solucionado = resultSet.getBoolean("SOLUCIONADO");
-                String data = resultSet.getString("DATA");
-
+                boolean status = resultSet.getBoolean("STATUS");
+                String data = resultSet.getString("DT_ABERTURA");
                 resultSet.close();
 
-                return new Ticket(idFromBd, tema, problema, resposta, solucionado, null, null, data);
+                return new Ticket(idFromBd, assunto, descricao, resposta, status, null, null, data);
             }
 
         } catch (SQLException e) {
@@ -80,33 +80,33 @@ public class JdbcTicketReposirory implements TicketRepository {
         }
 
         @Override
-        public void editarProblema(String problema, int id) {
+        public void editarDescricao(String descricao, int id) {
             String sql = """
-                UPDATE TICKET SET PROBLEMA = ?
-                WHERE ID = ?
+                UPDATE TICKET SET DESCRICAO = ?
+                WHERE ID_TICKET = ?
                 """;
 
             try (Connection conn = databaseConnection.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-                stmt.setString(1, problema);
+                stmt.setString(1, descricao);
                 stmt.setInt(2, id);
 
                 int affectedRows = stmt.executeUpdate();
                 if (affectedRows == 0) {
-                    throw new InfraestruturaException("Erro ao desativar cliente, nenhuma linha foi afetada");
+                    throw new InfraestruturaException("Erro ao editar descrição pois nenhuma linha foi afetada");
                 }
 
             } catch (SQLException e) {
-                throw new InfraestruturaException("Erro ao desativar cliente", e);
+                throw new InfraestruturaException("Erro ao editar descrição", e);
             }
         }
 
         @Override
         public void responder(int idFuncionario, String resposta, int idTicket) {
             String sql = """
-                UPDATE TICKET SET RESPOSTA = ?, FK_FUNCIONARIO_TICKET = ?
-                WHERE ID = ?
+                UPDATE TICKET SET RESPOSTA = ?, ID_FUNCIONARIO = ?
+                WHERE ID_TICKET = ?
                 """;
 
             try (Connection conn = databaseConnection.getConnection();
@@ -129,8 +129,8 @@ public class JdbcTicketReposirory implements TicketRepository {
         @Override
         public void fecharTicket(int id) {
             String sql = """
-                UPDATE TICKET SET SOLUCIONADO = TRUE
-                WHERE ID = ?
+                UPDATE TICKET SET STATUS = FALSE
+                WHERE ID_TICKET = ?
                 """;
 
         try (Connection conn = databaseConnection.getConnection();
@@ -151,8 +151,8 @@ public class JdbcTicketReposirory implements TicketRepository {
         @Override
         public void abrirTicket(int id) {
             String sql = """
-                UPDATE TICKET SET SOLUCIONADO = FALSE
-                WHERE ID = ?
+                UPDATE TICKET SET STATUS = TRUE
+                WHERE ID_TICKET = ?
                 """;
 
         try (Connection conn = databaseConnection.getConnection();
@@ -173,8 +173,8 @@ public class JdbcTicketReposirory implements TicketRepository {
         @Override
         public List<Ticket> exibirTodosTickets() {
             String sql = """
-                SELECT ID, TEMA, PROBLEMA, RESPOSTA, SOLUCIONADO, DATA
-                FROM TICKET ORDER BY ID
+                SELECT ID_TICKET, ASSUNTO, DESCRICAO, RESPOSTA, STATUS, DT_ABERTURA
+                FROM TICKET ORDER BY ID_TICKET
                 """;
 
             try (Connection conn = this.databaseConnection.getConnection();
@@ -185,13 +185,13 @@ public class JdbcTicketReposirory implements TicketRepository {
                 ResultSet rs = stmt.executeQuery();
                 while (rs.next()) {
                     int id = rs.getInt("ID");
-                    String tema = rs.getString("TEMA");
-                    String problema = rs.getString("PROBLEMA");
+                    String assunto = rs.getString("ASSUNTO");
+                    String descricao = rs.getString("DESCRICAO");
                     String resposta = rs.getString("RESPOSTA");
-                    Boolean solucionado = rs.getBoolean("SOLUCIONADO");
-                    String data = rs.getString("DATA");
+                    boolean status = rs.getBoolean("STATUS");
+                    String data = rs.getString("DT_ABERTURA");
 
-                    Ticket ticket = new Ticket(id, tema, problema, resposta, solucionado, null, null, data);
+                    Ticket ticket = new Ticket(id, assunto, descricao, resposta, status, null, null, data);
                     tickets.add(ticket);
                 }
 
@@ -204,8 +204,8 @@ public class JdbcTicketReposirory implements TicketRepository {
         @Override
         public List<Ticket> exibitTicketsPaciente(Paciente paciente) {
             String sql = """
-                SELECT ID, TEMA, PROBLEMA, RESPOSTA, SOLUCIONADO, DATA
-                FROM TICKET WHERE FK_PACIENTE = ?
+                SELECT ID_TICKET, ASSUNTO, DESCRICAO, RESPOSTA, STATUS, DT_ABERTURA
+                FROM TICKET WHERE CPF_PACIENTE = ?
                 """;
 
             try (Connection conn = this.databaseConnection.getConnection();
@@ -213,18 +213,18 @@ public class JdbcTicketReposirory implements TicketRepository {
 
                 List<Ticket> tickets = new ArrayList<>();
 
-                stmt.setInt(1, paciente.getRghc());
+                stmt.setString(1, paciente.getCpf());
 
                 ResultSet rs = stmt.executeQuery();
                 while (rs.next()) {
-                    int id = rs.getInt("ID");
-                    String tema = rs.getString("TEMA");
-                    String problema = rs.getString("PROBLEMA");
+                    int id = rs.getInt("ID_TICKET");
+                    String assunto = rs.getString("ASSUNTO");
+                    String descricao = rs.getString("DESCRICAO");
                     String resposta = rs.getString("RESPOSTA");
-                    Boolean solucionado = rs.getBoolean("SOLUCIONADO");
-                    String data = rs.getString("DATA");
+                    Boolean status = rs.getBoolean("STATUS");
+                    String data = rs.getString("DT_ABERTURA");
 
-                    Ticket ticket = new Ticket(id, tema, problema, resposta, solucionado, paciente, null, data);
+                    Ticket ticket = new Ticket(id, assunto, descricao, resposta, status, paciente, null, data);
                     tickets.add(ticket);
                 }
 
@@ -237,8 +237,8 @@ public class JdbcTicketReposirory implements TicketRepository {
         @Override
         public List<Ticket> exibitTicketsFuncionario(Funcionario funcionario) {
             String sql = """
-                SELECT ID, TEMA, PROBLEMA, RESPOSTA, SOLUCIONADO, DATA
-                FROM TICKET WHERE FK_FUNCIONARIO = ?
+                SELECT ID_TICKET, ASSUNTO, DESCRICAO, RESPOSTA, STATUS, DT_ABERTURA
+                FROM TICKET WHERE ID_FUNCIONARIO = ?
                 """;
 
             try (Connection conn = this.databaseConnection.getConnection();
@@ -250,14 +250,14 @@ public class JdbcTicketReposirory implements TicketRepository {
 
                 ResultSet rs = stmt.executeQuery();
                 while (rs.next()) {
-                    int id = rs.getInt("ID");
-                    String tema = rs.getString("TEMA");
-                    String problema = rs.getString("PROBLEMA");
+                    int id = rs.getInt("ID_TICKET");
+                    String assunto = rs.getString("ASSUNTO");
+                    String descricao = rs.getString("DESCRICAO");
                     String resposta = rs.getString("RESPOSTA");
-                    Boolean solucionado = rs.getBoolean("SOLUCIONADO");
-                    String data = rs.getString("DATA");
+                    Boolean status = rs.getBoolean("STATUS");
+                    String data = rs.getString("DT_ABERTURA");
 
-                    Ticket ticket = new Ticket(id, tema, problema, resposta, solucionado, null, funcionario, data);
+                    Ticket ticket = new Ticket(id, assunto, descricao, resposta, status, null, funcionario, data);
                     tickets.add(ticket);
                 }
 

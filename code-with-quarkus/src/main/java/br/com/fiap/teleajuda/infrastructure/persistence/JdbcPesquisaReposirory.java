@@ -13,7 +13,7 @@ public class JdbcPesquisaReposirory implements PesquisaRepository {
 
         private DatabaseConnection databaseConnection;
 
-        public void JdbcClienteRepository(DatabaseConnection databaseConnection) {
+        public void JdbcPesquisaRepository(DatabaseConnection databaseConnection) {
             this.databaseConnection = databaseConnection;
         }
 
@@ -30,7 +30,7 @@ public class JdbcPesquisaReposirory implements PesquisaRepository {
                 stmt.setInt(1, pesquisa.getNotaApp());
                 stmt.setInt(2, pesquisa.getNotaSite());
                 stmt.setInt(3, pesquisa.getNotaSuporte());
-                stmt.setInt(4, pesquisa.getPaciente().getRghc());
+                stmt.setString(4, pesquisa.getPaciente().getCpf());
 
                 int affectedRows = stmt.executeUpdate();
                 if (affectedRows == 0) {
@@ -56,7 +56,7 @@ public class JdbcPesquisaReposirory implements PesquisaRepository {
 
                 List<PesquisaSatisfacao> pesquisas = new ArrayList<>();
 
-                stmt.setInt(1, paciente.getRghc());
+                stmt.setString(1, paciente.getCpf());
 
                 ResultSet resultSet = stmt.executeQuery();
                 while (resultSet.next()) {

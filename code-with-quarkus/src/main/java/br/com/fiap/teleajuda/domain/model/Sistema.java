@@ -232,7 +232,7 @@
 //             case 2:
 //                 System.out.println("Escreva o titulo do problema:");
 //                 String assunto = scanner.nextLine();
-//                 ticket.setTema(assunto);
+//                 ticket.setAssunto(assunto);
 //                 System.out.println("Descreva seu problema: ");
 //                 String problema = scanner.nextLine();
 //                 ticket.setProblema(problema);

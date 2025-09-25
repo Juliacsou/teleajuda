@@ -1,31 +1,27 @@
 package br.com.fiap.teleajuda.domain.model.pessoa;
 
 public class Paciente extends Pessoa {
-    private int rghc;
+    private String cpf;
     private String telefone;
     private String data_nasc;
- 
+    private String rghc;
+
     //Construtor
-    public Paciente(String nome, String email, User user, int rghc, String telefone, String data_nasc) {
+    public Paciente(String nome, String email, User user, String cpf, String telefone, String data_nasc, String rghc) {
         super(nome, email, user);
-        this.rghc = rghc;
+        this.cpf = cpf;
         this.telefone = telefone;
         this.data_nasc = data_nasc;
+        this.rghc = rghc;
     }
 
     //Getter e Setters
-    public int getRghc() {return rghc;}
-    public void setRghc(int rghc) {this.rghc = rghc;}
+    public String getCpf() {return cpf;}
+    public void setCpf(String cpf) {this.cpf = cpf;}
     public String getTelefone() {return telefone;}
     public void setTelefone(String telefone) {this.telefone = telefone;}
     public String getData_nasc() {return data_nasc;}
     public void setData_nasc(String data_nasc) {this.data_nasc = data_nasc;}
-
-    public void exibirPaciente() {
-        System.out.println("Nome: " + getNome());
-        System.out.println("RGHC: " + getRghc());
-        System.out.println("Email: " + getEmail());
-        System.out.println("Telefone: " + getTelefone());
-        System.out.println("Data de Nascimento: " + getData_nasc());
-    }
+    public String getRghc() {return rghc;}
+    public void setRghc(String rghc) {this.rghc = rghc;}
 }

@@ -1,18 +1,23 @@
 package br.com.fiap.teleajuda.domain.model.pessoa;
 
 public class User {
+    private int id;
     private String user;
     private String senha;
     private String tipo;
 
     //Contrutor
-    public User(String user, String senha, String tipo) {
+    public User(int id, String user, String senha, String tipo) {
+        this.id = id;
         this.user = user;
         this.senha = senha;
         this.tipo = tipo;
     }
 
     //Getters e Setters
+
+    public int getId() {return id;}
+    public void setId(int id) {this.id = id;}
     public String getUser() {return user;}
     public void setUser(String user) {this.user = user;}
     public String getSenha() {return senha;}
@@ -25,9 +30,6 @@ public class User {
         return this.user.equals(user) && this.senha.equals(senha);
     }
 
-    public void exibirUsuario() {
-        System.out.println("Usuario: " + user);
-        System.out.println("Senha: " + senha);
-    }
+
 }
 

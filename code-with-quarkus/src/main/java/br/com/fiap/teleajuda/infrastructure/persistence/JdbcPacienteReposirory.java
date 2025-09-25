@@ -11,24 +11,24 @@ public class JdbcPacienteReposirory implements PacienteRepository {
 
         private DatabaseConnection databaseConnection;
 
-        public void JdbcClienteRepository(DatabaseConnection databaseConnection) {
+        public void JdbcPacienteRepository(DatabaseConnection databaseConnection) {
             this.databaseConnection = databaseConnection;
         }
 
         @Override
         public Paciente criar(Paciente paciente) {
             String sql = """
-                INSERT INTO PACIENTE (NOME, EMAIL, RGHC, TEL, DATA_NASC)
+                INSERT INTO PACIENTE (CPF_PACIENTE, NM_PACIENTE, TEL_PACIENTE, MAIL_PACIENTE, RGHC)
                 VALUES (?, ?, ?, ?, ?)
                 """;
 
             try (Connection conn = this.databaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
                 
-                stmt.setString(1, paciente.getNome());
-                stmt.setString(2, paciente.getEmail());
-                stmt.setInt(3, paciente.getRghc());
-                stmt.setString(4, paciente.getTelefone());
-                stmt.setString(5, paciente.getData_nasc());
+                stmt.setString(1, paciente.getCpf());
+                stmt.setString(2, paciente.getNome());
+                stmt.setString(3, paciente.getTelefone());
+                stmt.setString(4, paciente.getEmail());
+                stmt.setString(5, paciente.getRghc());
 
                 int affectedRows = stmt.executeUpdate();
                 if (affectedRows == 0){
@@ -43,30 +43,31 @@ public class JdbcPacienteReposirory implements PacienteRepository {
         }
 
         @Override
-        public Paciente buscarPorRGHC(int rghc) throws EntidadeNaoLocalizada {
+        public Paciente buscarPorCpf(String cpf) throws EntidadeNaoLocalizada {
             String sqlFunc = """
-                SELECT NOME, EMAIL, RGHC, TEL, DATA_NASC FROM PACIENTE WHERE RGHC = ?
+                SELECT CPF_PACIENTE, NM_PACIENTE, TEL_PACIENTE, MAIL_PACIENTE, RGHC, DT_NASC_PACIENTE FROM PACIENTE WHERE CPF_PACIENTE = ?
                 """;
 
             try (Connection conn = this.databaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sqlFunc)) {
 
-            stmt.setInt(1, rghc);
+            stmt.setString(1, cpf);
             ResultSet resultSet = stmt.executeQuery();
 
                 if (resultSet.next()) {
-                    String nome = resultSet.getString("NOME");
-                    String email = resultSet.getString("EMAIL");
-                    int rghcFromBd = resultSet.getInt("RGHC");
-                    String tel = resultSet.getString("TEL");
-                    String data_nasc = resultSet.getString("DATA_NASC");
+                    String cpfFromBd = resultSet.getString("CPF_PACIENTE");
+                    String nome = resultSet.getString("NM_PACIENTE");
+                    String tel = resultSet.getString("TEL_PACIENTE");
+                    String email = resultSet.getString("MAIL_PACIENTE");
+                    String rghc = resultSet.getString("RGHC");
+                    String dt_nasc = resultSet.getString("DT_NASC_PACIENTE");
 
                     resultSet.close();
 
-                    return new Paciente(nome, email, null, rghcFromBd, tel, data_nasc);
+                    return new Paciente(nome, email, null, cpfFromBd, tel, dt_nasc, rghc);
                 }
             } catch (SQLException e) {
-                throw new EntidadeNaoLocalizada("Erro ao buscar paciente pelo RGHC", e);
+                throw new EntidadeNaoLocalizada("Erro ao buscar paciente pelo CPF", e);
             }
 
             throw new EntidadeNaoLocalizada("Paciente nao encontrado");
@@ -75,18 +76,19 @@ public class JdbcPacienteReposirory implements PacienteRepository {
         @Override
         public void editar(Paciente paciente) {
             String sql = """
-                UPDATE PACIENTE SET NOME = ?, EMAIL = ?, TEL = ?, DATA_NASC = ?
-                WHERE RGHC = ?
+                UPDATE PACIENTE SET NM_PACIENTE = ?, TEL_PACIENTE = ?, MAIL_PACIENTE = ?, RGHC = ?, DT_NASC_PACIENTE = ?
+                WHERE CPF_PACIENTE = ?
                 """;
 
             try (Connection conn = databaseConnection.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
                 stmt.setString(1, paciente.getNome());
-                stmt.setString(2, paciente.getEmail());
-                stmt.setString(3, paciente.getTelefone());
-                stmt.setString(4, paciente.getData_nasc());
-                stmt.setInt(5, paciente.getRghc());
+                stmt.setString(2, paciente.getTelefone());
+                stmt.setString(3, paciente.getEmail());
+                stmt.setString(4, paciente.getRghc());
+                stmt.setString(5, paciente.getData_nasc());
+                stmt.setString(6, paciente.getCpf());
 
                 int affectedRows = stmt.executeUpdate();
                 if (affectedRows == 0) {

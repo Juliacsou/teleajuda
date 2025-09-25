@@ -11,31 +11,32 @@ public class JdbcUserReposirory implements UserRepository {
 
         private DatabaseConnection databaseConnection;
 
-        public void JdbcClienteRepository(DatabaseConnection databaseConnection) {
+        public void JdbcUserRepository(DatabaseConnection databaseConnection) {
             this.databaseConnection = databaseConnection;
         }
 
 
         @Override
-        public User buscarUser(String user) throws EntidadeNaoLocalizada {
+        public User buscarUser(int id) throws EntidadeNaoLocalizada {
             String sqlUser = """
-                SELECT USER, SENHA, TIPO FROM USER WHERE USER = ?
+                SELECT ID_LOGIN, USER_LOGIN, SENHA_LOGIN, TP_LOGIN FROM USER WHERE ID_LOGIN = ?
                 """;            
             
             try (Connection conn = this.databaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sqlUser)) {
 
-                stmt.setString(1, user);
+                stmt.setInt(1, id);
                 ResultSet resultSet = stmt.executeQuery();
 
                 if (resultSet.next()) {
-                    String userFromBd = resultSet.getString("USER");
-                    String senha = resultSet.getString("SENHA");
-                    String tipo = resultSet.getString("TIPO");
+                    int idFromBd = resultSet.getInt("ID_LOGIN");
+                    String user = resultSet.getString("USER_LOGIN");
+                    String senha = resultSet.getString("SENHA_LOGIN");
+                    String tipo = resultSet.getString("TP_LOGIN");
 
                     resultSet.close();
 
-                    return new User(userFromBd, senha, tipo);
+                    return new User(id, user, senha, tipo);
                 }
 
             } catch (SQLException e) {
@@ -48,15 +49,16 @@ public class JdbcUserReposirory implements UserRepository {
         @Override
         public User criar(User user) {
             String sql = """
-                INSERT INTO USER (USER, SENHA, TIPO)
-                VALUES (?, ?, ?)
+                INSERT INTO USER (ID_LOGIN, USER_LOGIN, SENHA_LOGIN, TP_LOGIN)
+                VALUES (?, ?, ?, ?)
                 """;
 
             try (Connection conn = this.databaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-                
-                stmt.setString(1, user.getUser());
-                stmt.setString(2, user.getSenha());
-                stmt.setString(3, user.getTipo());
+
+                stmt.setInt(1, user.getId());
+                stmt.setString(2, user.getUser());
+                stmt.setString(3, user.getSenha());
+                stmt.setString(4, user.getTipo());
 
                 int affectedRows = stmt.executeUpdate();
                 if (affectedRows == 0){
@@ -74,8 +76,8 @@ public class JdbcUserReposirory implements UserRepository {
         @Override
         public void editar(User user) {
             String sql = """
-                UPDATE PACIENTE SET USER = ?, SENHA = ?, TIPO = ?
-                WHERE USER = ?
+                UPDATE PACIENTE SET USER_LOGIN = ?, SENHA_LOGIN = ?, TP_LOGIN = ?
+                WHERE ID_LOGIN = ?
                 """;
 
             try (Connection conn = databaseConnection.getConnection();
@@ -84,7 +86,7 @@ public class JdbcUserReposirory implements UserRepository {
                 stmt.setString(1, user.getUser());
                 stmt.setString(2, user.getSenha());
                 stmt.setString(3, user.getTipo());
-                stmt.setString(4, user.getUser());
+                stmt.setInt(4, user.getId());
 
                 int affectedRows = stmt.executeUpdate();
                 if (affectedRows == 0) {

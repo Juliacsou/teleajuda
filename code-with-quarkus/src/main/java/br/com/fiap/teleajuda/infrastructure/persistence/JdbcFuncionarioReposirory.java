@@ -11,15 +11,15 @@ public class JdbcFuncionarioReposirory implements FuncionarioRepository {
 
         private DatabaseConnection databaseConnection;
 
-        public void JdbcClienteRepository(DatabaseConnection databaseConnection) {
+        public void JdbcFuncionarioRepository(DatabaseConnection databaseConnection) {
             this.databaseConnection = databaseConnection;
         }
 
         @Override
         public Funcionario criar(Funcionario funcionario) {
             String sql = """
-                INSERT INTO FUNCIONARIO (ID, NOME, EMAIL)
-                VALUES (?, ?, ?)
+                INSERT INTO FUNCIONARIO (ID_FUNCIONARIO, NM_FUNCIONARIO, MAIL_FUNCIONARIO, ID_LOGIN)
+                VALUES (?, ?, ?, ?)
                 """;
 
             try (Connection conn = this.databaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -27,6 +27,7 @@ public class JdbcFuncionarioReposirory implements FuncionarioRepository {
                 stmt.setInt(1, funcionario.getCodigo());
                 stmt.setString(2, funcionario.getNome());
                 stmt.setString(3, funcionario.getEmail());
+                stmt.setInt(4, funcionario.getUser().getId());
 
                 int affectedRows = stmt.executeUpdate();
                 if (affectedRows == 0){
@@ -43,7 +44,7 @@ public class JdbcFuncionarioReposirory implements FuncionarioRepository {
         @Override
         public Funcionario buscarPorCodigo(String id) throws EntidadeNaoLocalizada {
             String sqlFunc = """
-                SELECT ID, NOME, EMAIL FROM FUNCIONARIO WHERE ID = ?
+                SELECT ID_FUNCIONARIO, NM_FUNCIONARIO, MAIL_FUNCIONARIO, ID_LOGIN FROM FUNCIONARIO WHERE ID_FUNCIONARIO = ?
                 """;
 
             try (Connection conn = this.databaseConnection.getConnection();
@@ -54,8 +55,9 @@ public class JdbcFuncionarioReposirory implements FuncionarioRepository {
 
                 if (resultSet.next()) {
                     int idFromBd = resultSet.getInt("ID");
-                    String nome = resultSet.getString("NOME");
-                    String email = resultSet.getString("EMAIL");
+                    String nome = resultSet.getString("NM_FUNCIONARIO");
+                    String email = resultSet.getString("MAIL_FUNCIONARIO");
+                    int userId = resultSet.getInt("ID_LOGIN");
 
                     resultSet.close();
 
@@ -71,8 +73,8 @@ public class JdbcFuncionarioReposirory implements FuncionarioRepository {
         @Override
         public void editar(Funcionario funcionario) {
             String sql = """
-                UPDATE FUNCIONARIO SET NOME = ?, EMAIL = ?
-                WHERE ID = ?
+                UPDATE FUNCIONARIO SET NM_FUNCIONARIO = ?, MAIL_FUNCIONARIO = ?, ID_LOGIN = ?
+                WHERE ID_FUNCIONARIO = ?
                 """;
 
             try (Connection conn = databaseConnection.getConnection();
@@ -80,11 +82,13 @@ public class JdbcFuncionarioReposirory implements FuncionarioRepository {
 
                 stmt.setString(1, funcionario.getNome());
                 stmt.setString(2, funcionario.getEmail());
-                stmt.setLong(3, funcionario.getCodigo());
+                stmt.setInt(3, funcionario.getUser().getId());
+                stmt.setInt(4, funcionario.getCodigo());
+
 
                 int affectedRows = stmt.executeUpdate();
                 if (affectedRows == 0) {
-                    throw new InfraestruturaException("Erro ao editar funcionario, nenhuma linha foi afetada");
+                    throw new InfraestruturaException("Erro ao editar funcionario pois nenhuma linha foi afetada");
                 }
 
             } catch (SQLException e) {
