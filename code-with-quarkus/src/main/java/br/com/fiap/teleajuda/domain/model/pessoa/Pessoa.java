@@ -11,6 +11,10 @@ public class Pessoa {
         this.email = email;
         this.user = user;
     }
+    public Pessoa(String nome, String email) {
+        this.nome = nome;
+        this.email = email;
+    }
 
     //Getters e Setters
     public String getNome() {return nome;}

@@ -64,7 +64,7 @@ public class JdbcPacienteReposirory implements PacienteRepository {
 
                     resultSet.close();
 
-                    return new Paciente(nome, email, null, cpfFromBd, tel, dt_nasc, rghc);
+                    return new Paciente(nome, email, cpfFromBd, tel, dt_nasc, rghc);
                 }
             } catch (SQLException e) {
                 throw new EntidadeNaoLocalizada("Erro ao buscar paciente pelo CPF", e);

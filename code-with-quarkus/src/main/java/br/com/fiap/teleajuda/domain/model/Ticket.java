@@ -14,8 +14,6 @@ public class Ticket {
     private String data;
 
     //contrutor
-
-
     public Ticket(int codigo, String assunto, String descricao, String resposta, boolean status, Paciente paciente, Funcionario funcionario, String data) {
         this.codigo = codigo;
         this.assunto = assunto;
@@ -24,6 +22,14 @@ public class Ticket {
         this.status = status;
         this.paciente = paciente;
         this.funcionario = funcionario;
+        this.data = data;
+    }
+    public Ticket(int codigo, String assunto, String descricao, String resposta, boolean status, String data) {
+        this.codigo = codigo;
+        this.assunto = assunto;
+        this.descricao = descricao;
+        this.resposta = resposta;
+        this.status = status;
         this.data = data;
     }
 

@@ -44,7 +44,7 @@ public class JdbcFuncionarioReposirory implements FuncionarioRepository {
         @Override
         public Funcionario buscarPorCodigo(String id) throws EntidadeNaoLocalizada {
             String sqlFunc = """
-                SELECT ID_FUNCIONARIO, NM_FUNCIONARIO, MAIL_FUNCIONARIO, ID_LOGIN FROM FUNCIONARIO WHERE ID_FUNCIONARIO = ?
+                SELECT ID_FUNCIONARIO, NM_FUNCIONARIO, MAIL_FUNCIONARIO FROM FUNCIONARIO WHERE ID_FUNCIONARIO = ?
                 """;
 
             try (Connection conn = this.databaseConnection.getConnection();
@@ -57,11 +57,10 @@ public class JdbcFuncionarioReposirory implements FuncionarioRepository {
                     int idFromBd = resultSet.getInt("ID");
                     String nome = resultSet.getString("NM_FUNCIONARIO");
                     String email = resultSet.getString("MAIL_FUNCIONARIO");
-                    int userId = resultSet.getInt("ID_LOGIN");
 
                     resultSet.close();
 
-                    return new Funcionario(nome, email, null, idFromBd);
+                    return new Funcionario(nome, email, idFromBd);
                 }
             } catch (SQLException e) {
                 throw new EntidadeNaoLocalizada("Erro ao buscar funcionário por id", e);

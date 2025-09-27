@@ -70,7 +70,8 @@ public class JdbcTicketReposirory implements TicketRepository {
                 String data = resultSet.getString("DT_ABERTURA");
                 resultSet.close();
 
-                return new Ticket(idFromBd, assunto, descricao, resposta, status, null, null, data);
+
+                return new Ticket(idFromBd, assunto, descricao, resposta, status, data);
             }
 
         } catch (SQLException e) {

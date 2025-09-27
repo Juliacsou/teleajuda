@@ -7,6 +7,13 @@ public class Paciente extends Pessoa {
     private String rghc;
 
     //Construtor
+    public Paciente(String nome, String email, String cpf, String telefone, String data_nasc, String rghc) {
+        super(nome, email);
+        this.cpf = cpf;
+        this.telefone = telefone;
+        this.data_nasc = data_nasc;
+        this.rghc = rghc;
+    }
     public Paciente(String nome, String email, User user, String cpf, String telefone, String data_nasc, String rghc) {
         super(nome, email, user);
         this.cpf = cpf;

@@ -9,6 +9,10 @@ public class Funcionario extends Pessoa {
         super(nome, email, user);
         this.codigo = codigo;
     }
+    public Funcionario(String nome, String email, int codigo) {
+        super(nome, email);
+        this.codigo = codigo;
+    }
 
     //Getters e Setters
     public int getCodigo() {return codigo;}
