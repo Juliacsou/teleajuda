@@ -5,6 +5,6 @@ import br.com.fiap.teleajuda.domain.model.pessoa.Funcionario;
 
 public interface FuncionarioRepository {
     Funcionario criar(Funcionario funcionario);
-    Funcionario buscarPorCodigo(String id) throws EntidadeNaoLocalizada;
+    Funcionario buscarPorCodigo(int id) throws EntidadeNaoLocalizada;
     void editar(Funcionario funcionario);
 }

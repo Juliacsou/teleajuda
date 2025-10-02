@@ -7,16 +7,16 @@ import br.com.fiap.teleajuda.infrastructure.exceptions.InfraestruturaException;
 
 import java.sql.*;
 
-public class JdbcUserReposirory implements UserRepository {
+public class JdbcUserRepository implements UserRepository {
 
-        private DatabaseConnection databaseConnection;
+        private final DatabaseConnection databaseConnection;
 
-        public void JdbcUserRepository(DatabaseConnection databaseConnection) {
+        public JdbcUserRepository(DatabaseConnection databaseConnection) {
             this.databaseConnection = databaseConnection;
         }
 
 
-        @Override
+    @Override
         public User buscarUser(int id) throws EntidadeNaoLocalizada {
             String sqlUser = """
                 SELECT ID_LOGIN, USER_LOGIN, SENHA_LOGIN, TP_LOGIN FROM USER WHERE ID_LOGIN = ?
@@ -49,7 +49,7 @@ public class JdbcUserReposirory implements UserRepository {
         @Override
         public User criar(User user) {
             String sql = """
-                INSERT INTO USER (ID_LOGIN, USER_LOGIN, SENHA_LOGIN, TP_LOGIN)
+                INSERT INTO T_TAJ_LOGIN (id_login, user_login, senha_login, tp_login)
                 VALUES (?, ?, ?, ?)
                 """;
 

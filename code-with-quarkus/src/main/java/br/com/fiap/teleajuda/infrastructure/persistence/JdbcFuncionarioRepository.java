@@ -7,19 +7,18 @@ import br.com.fiap.teleajuda.infrastructure.exceptions.InfraestruturaException;
 
 import java.sql.*;
 
-public class JdbcFuncionarioReposirory implements FuncionarioRepository {
+public class JdbcFuncionarioRepository implements FuncionarioRepository {
 
-        private DatabaseConnection databaseConnection;
+    private final DatabaseConnection databaseConnection;
 
-        public void JdbcFuncionarioRepository(DatabaseConnection databaseConnection) {
-            this.databaseConnection = databaseConnection;
-        }
+    public JdbcFuncionarioRepository(DatabaseConnection databaseConnection) {
+        this.databaseConnection = databaseConnection;
+    }
 
-        @Override
+    @Override
         public Funcionario criar(Funcionario funcionario) {
             String sql = """
-                INSERT INTO FUNCIONARIO (ID_FUNCIONARIO, NM_FUNCIONARIO, MAIL_FUNCIONARIO, ID_LOGIN)
-                VALUES (?, ?, ?, ?)
+                INSERT INTO T_TAJ_FUNCIONARIO (ID_FUNCIONARIO, NM_FUNCIONARIO, MAIL_FUNCIONARIO, T_TAJ_LOGIN_ID_LOGIN) VALUES (?, ?, ?, ?)
                 """;
 
             try (Connection conn = this.databaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -42,19 +41,19 @@ public class JdbcFuncionarioReposirory implements FuncionarioRepository {
         }
 
         @Override
-        public Funcionario buscarPorCodigo(String id) throws EntidadeNaoLocalizada {
+        public Funcionario buscarPorCodigo(int id) throws EntidadeNaoLocalizada {
             String sqlFunc = """
-                SELECT ID_FUNCIONARIO, NM_FUNCIONARIO, MAIL_FUNCIONARIO FROM FUNCIONARIO WHERE ID_FUNCIONARIO = ?
+                SELECT ID_FUNCIONARIO, NM_FUNCIONARIO, MAIL_FUNCIONARIO FROM T_TAJ_FUNCIONARIO WHERE ID_FUNCIONARIO = ?
                 """;
 
             try (Connection conn = this.databaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sqlFunc)) {
 
-            stmt.setString(1, id);
+            stmt.setInt(1, id);
             ResultSet resultSet = stmt.executeQuery();
 
                 if (resultSet.next()) {
-                    int idFromBd = resultSet.getInt("ID");
+                    int idFromBd = resultSet.getInt("ID_FUNCIONARIO");
                     String nome = resultSet.getString("NM_FUNCIONARIO");
                     String email = resultSet.getString("MAIL_FUNCIONARIO");
 
@@ -72,8 +71,7 @@ public class JdbcFuncionarioReposirory implements FuncionarioRepository {
         @Override
         public void editar(Funcionario funcionario) {
             String sql = """
-                UPDATE FUNCIONARIO SET NM_FUNCIONARIO = ?, MAIL_FUNCIONARIO = ?, ID_LOGIN = ?
-                WHERE ID_FUNCIONARIO = ?
+                UPDATE T_TAJ_FUNCIONARIO SET NM_FUNCIONARIO = ?, MAIL_FUNCIONARIO = ?, T_TAJ_LOGIN_ID_LOGIN = ? WHERE ID_FUNCIONARIO = ?
                 """;
 
             try (Connection conn = databaseConnection.getConnection();

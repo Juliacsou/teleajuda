@@ -11,19 +11,19 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JdbcTicketReposirory implements TicketRepository {
+public class JdbcTicketRepository implements TicketRepository {
 
-        private DatabaseConnection databaseConnection;
+    private final DatabaseConnection databaseConnection;
 
-        public void JdbcTicketRepository(DatabaseConnection databaseConnection) {
-            this.databaseConnection = databaseConnection;
-        }
+    public JdbcTicketRepository(DatabaseConnection databaseConnection) {
+        this.databaseConnection = databaseConnection;
+    }
 
-        @Override
+
+    @Override
         public Ticket criar(Ticket ticket) {
             String sql = """
-                INSERT INTO TICKET (ID_TICKET, ASSUNTO, DESCRICAO, STATUS, DT_ABERTURA, CPF_PACIENTE)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO T_TAJ_TICKET (ID_TICKET, ASSUNTO, DESCRICAO, STATUS, DT_ABERTURA, CPF_PACIENTE, ID_FUNCIONARIO) VALUES (?, ?, ?, ?, ?, ?, ?)
                 """;
 
         try (Connection conn = this.databaseConnection.getConnection();
@@ -32,10 +32,11 @@ public class JdbcTicketReposirory implements TicketRepository {
             stmt.setInt(1, ticket.getCodigo());
             stmt.setString(2, ticket.getAssunto());
             stmt.setString(3, ticket.getDescricao());
-            stmt.setBoolean(4, ticket.getStatus());
+            stmt.setString(4, "A");
             Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
             stmt.setTimestamp(5, currentTimestamp);
             stmt.setString(6, ticket.getPaciente().getCpf());
+            stmt.setNull(7, java.sql.Types.INTEGER);
 
             int affectedRows = stmt.executeUpdate();
             if (affectedRows == 0) {
@@ -71,7 +72,7 @@ public class JdbcTicketReposirory implements TicketRepository {
                 resultSet.close();
 
 
-                return new Ticket(idFromBd, assunto, descricao, resposta, status, data);
+                return new Ticket(idFromBd, assunto, descricao, status, null, data);
             }
 
         } catch (SQLException e) {

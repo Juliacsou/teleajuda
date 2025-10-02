@@ -4,37 +4,42 @@ import br.com.fiap.teleajuda.domain.exceptions.EntidadeNaoLocalizada;
 import br.com.fiap.teleajuda.domain.model.pessoa.Paciente;
 import br.com.fiap.teleajuda.domain.repository.PacienteRepository;
 import br.com.fiap.teleajuda.infrastructure.exceptions.InfraestruturaException;
+import br.com.fiap.teleajuda.infrastructure.persistence.DatabaseConnection;
 
 import java.sql.*;
 
-public class JdbcPacienteReposirory implements PacienteRepository {
+public class JdbcPacienteRepository implements PacienteRepository {
 
-        private DatabaseConnection databaseConnection;
+    private final DatabaseConnection databaseConnection;
 
-        public void JdbcPacienteRepository(DatabaseConnection databaseConnection) {
-            this.databaseConnection = databaseConnection;
-        }
+    public JdbcPacienteRepository(DatabaseConnection databaseConnection) {
+        this.databaseConnection = databaseConnection;
+    }
 
-        @Override
+
+    @Override
         public Paciente criar(Paciente paciente) {
             String sql = """
-                INSERT INTO PACIENTE (CPF_PACIENTE, NM_PACIENTE, TEL_PACIENTE, MAIL_PACIENTE, RGHC)
-                VALUES (?, ?, ?, ?, ?)
+                INSERT INTO T_TAJ_PACIENTE (CPF_PACIENTE, NM_PACIENTE, TEL_PACIENTE, MAIL_PACIENTE, RGHC, DT_NASC_PACIENTE, T_TAJ_LOGIN_ID_LOGIN)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
                 """;
 
             try (Connection conn = this.databaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-                
+                conn.setAutoCommit(false);
+
                 stmt.setString(1, paciente.getCpf());
                 stmt.setString(2, paciente.getNome());
                 stmt.setString(3, paciente.getTelefone());
                 stmt.setString(4, paciente.getEmail());
                 stmt.setString(5, paciente.getRghc());
+                stmt.setDate(6, java.sql.Date.valueOf(paciente.getData_nasc()));
+                stmt.setInt(7, paciente.getUser().getId());
 
                 int affectedRows = stmt.executeUpdate();
                 if (affectedRows == 0){
                     throw new UnsupportedOperationException("Erro ao salvar pois nenhuma linha do banco foi alterada");
                 }
-
+                conn.commit();
                 return paciente;
 
             }catch (SQLException e) {
@@ -45,7 +50,7 @@ public class JdbcPacienteReposirory implements PacienteRepository {
         @Override
         public Paciente buscarPorCpf(String cpf) throws EntidadeNaoLocalizada {
             String sqlFunc = """
-                SELECT CPF_PACIENTE, NM_PACIENTE, TEL_PACIENTE, MAIL_PACIENTE, RGHC, DT_NASC_PACIENTE FROM PACIENTE WHERE CPF_PACIENTE = ?
+                SELECT CPF_PACIENTE, NM_PACIENTE, TEL_PACIENTE, MAIL_PACIENTE, RGHC, DT_NASC_PACIENTE FROM T_TAJ_PACIENTE WHERE CPF_PACIENTE = ?
                 """;
 
             try (Connection conn = this.databaseConnection.getConnection();
@@ -76,8 +81,7 @@ public class JdbcPacienteReposirory implements PacienteRepository {
         @Override
         public void editar(Paciente paciente) {
             String sql = """
-                UPDATE PACIENTE SET NM_PACIENTE = ?, TEL_PACIENTE = ?, MAIL_PACIENTE = ?, RGHC = ?, DT_NASC_PACIENTE = ?
-                WHERE CPF_PACIENTE = ?
+                    UPDATE T_TAJ_PACIENTE SET NM_PACIENTE = ?, TEL_PACIENTE = ?, MAIL_PACIENTE = ?, RGHC = ?, DT_NASC_PACIENTE = ? WHERE CPF_PACIENTE = ?
                 """;
 
             try (Connection conn = databaseConnection.getConnection();
@@ -87,7 +91,7 @@ public class JdbcPacienteReposirory implements PacienteRepository {
                 stmt.setString(2, paciente.getTelefone());
                 stmt.setString(3, paciente.getEmail());
                 stmt.setString(4, paciente.getRghc());
-                stmt.setString(5, paciente.getData_nasc());
+                stmt.setDate(5, java.sql.Date.valueOf(paciente.getData_nasc()));
                 stmt.setString(6, paciente.getCpf());
 
                 int affectedRows = stmt.executeUpdate();

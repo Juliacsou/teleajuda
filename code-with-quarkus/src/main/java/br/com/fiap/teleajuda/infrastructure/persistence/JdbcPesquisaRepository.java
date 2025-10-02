@@ -9,15 +9,15 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JdbcPesquisaReposirory implements PesquisaRepository {
+public class JdbcPesquisaRepository implements PesquisaRepository {
 
-        private DatabaseConnection databaseConnection;
+    private final DatabaseConnection databaseConnection;
 
-        public void JdbcPesquisaRepository(DatabaseConnection databaseConnection) {
-            this.databaseConnection = databaseConnection;
-        }
+    public JdbcPesquisaRepository(DatabaseConnection databaseConnection) {
+        this.databaseConnection = databaseConnection;
+    }
 
-        @Override
+    @Override
         public PesquisaSatisfacao criar(PesquisaSatisfacao pesquisa) {
             String sql = """
                 INSERT INTO PESQUISA (NOTAAPP, NOTASITE, NOTASUPORTE, FK_PACIENTE)
