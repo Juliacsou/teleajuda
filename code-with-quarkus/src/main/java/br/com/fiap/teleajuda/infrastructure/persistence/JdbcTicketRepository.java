@@ -82,7 +82,7 @@ public class JdbcTicketRepository implements TicketRepository {
         }
 
         @Override
-        public void editarDescricao(String descricao, int id) {
+        public void editarDescricaoTicket(String descricao, int id) {
             String sql = """
                 UPDATE TICKET SET DESCRICAO = ?
                 WHERE ID_TICKET = ?
@@ -172,7 +172,12 @@ public class JdbcTicketRepository implements TicketRepository {
         }
         }
 
-        @Override
+    @Override
+    public void deletarTicket(int id) {
+
+    }
+
+    @Override
         public List<Ticket> exibirTodosTickets() {
             String sql = """
                 SELECT ID_TICKET, ASSUNTO, DESCRICAO, RESPOSTA, STATUS, DT_ABERTURA

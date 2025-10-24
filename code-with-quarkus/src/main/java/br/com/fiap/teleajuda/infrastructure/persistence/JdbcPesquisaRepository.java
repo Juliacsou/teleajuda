@@ -133,7 +133,12 @@ public class JdbcPesquisaRepository implements PesquisaRepository {
         };
         }
 
-        @Override
+    @Override
+    public void excluirPesquisa(int id) {
+
+    }
+
+    @Override
         public List<PesquisaSatisfacao> exibitTodasPesquisas() {
              String sql = """
                 SELECT ID, NOTA_APP, NOTA_SITE, NOTA_SUPORTE

@@ -1,34 +1,88 @@
 package br.com.fiap.teleajuda.domain.model.pessoa;
 
-public class Paciente extends Pessoa {
-    private String cpf;
-    private String telefone;
-    private String data_nasc;
+public class Paciente {
+    private String cpf_paciente;
+    private String nm_paciente;
+    private String tel_paciente;
+    private String mail_paciente;
     private String rghc;
+    private String dt_nasc_paciente;
+    private Login login;
 
-    //Construtor
-    public Paciente(String nome, String email, String cpf, String telefone, String data_nasc, String rghc) {
-        super(nome, email);
-        this.cpf = cpf;
-        this.telefone = telefone;
-        this.data_nasc = data_nasc;
+    //CONSTRUTORES
+    public Paciente(String cpf_paciente, String nm_paciente, String tel_paciente, String mail_paciente, String rghc, String dt_nasc_paciente, Login user) {
+        this.cpf_paciente = cpf_paciente;
+        this.nm_paciente = nm_paciente;
+        this.tel_paciente = tel_paciente;
+        this.mail_paciente = mail_paciente;
         this.rghc = rghc;
-    }
-    public Paciente(String nome, String email, User user, String cpf, String telefone, String data_nasc, String rghc) {
-        super(nome, email, user);
-        this.cpf = cpf;
-        this.telefone = telefone;
-        this.data_nasc = data_nasc;
-        this.rghc = rghc;
+        this.dt_nasc_paciente = dt_nasc_paciente;
+        this.login = login;
     }
 
-    //Getter e Setters
-    public String getCpf() {return cpf;}
-    public void setCpf(String cpf) {this.cpf = cpf;}
-    public String getTelefone() {return telefone;}
-    public void setTelefone(String telefone) {this.telefone = telefone;}
-    public String getData_nasc() {return data_nasc;}
-    public void setData_nasc(String data_nasc) {this.data_nasc = data_nasc;}
-    public String getRghc() {return rghc;}
-    public void setRghc(String rghc) {this.rghc = rghc;}
+    public Paciente(String cpf_paciente, String nm_paciente, String tel_paciente, String mail_paciente, String rghc, String dt_nasc_paciente) {
+        this.cpf_paciente = cpf_paciente;
+        this.nm_paciente = nm_paciente;
+        this.tel_paciente = tel_paciente;
+        this.mail_paciente = mail_paciente;
+        this.rghc = rghc;
+        this.dt_nasc_paciente = dt_nasc_paciente;
+    }
+
+    //GETTERS E SETTERS
+    public String getCpf_paciente() {
+        return cpf_paciente;
+    }
+
+    public void setCpf_paciente(String cpf_paciente) {
+        this.cpf_paciente = cpf_paciente;
+    }
+
+    public String getNm_paciente() {
+        return nm_paciente;
+    }
+
+    public void setNm_paciente(String nm_paciente) {
+        this.nm_paciente = nm_paciente;
+    }
+
+    public String getTel_paciente() {
+        return tel_paciente;
+    }
+
+    public void setTel_paciente(String tel_paciente) {
+        this.tel_paciente = tel_paciente;
+    }
+
+    public String getMail_paciente() {
+        return mail_paciente;
+    }
+
+    public void setMail_paciente(String mail_paciente) {
+        this.mail_paciente = mail_paciente;
+    }
+
+    public String getRghc() {
+        return rghc;
+    }
+
+    public void setRghc(String rghc) {
+        this.rghc = rghc;
+    }
+
+    public String getDt_nasc_paciente() {
+        return dt_nasc_paciente;
+    }
+
+    public void setDt_nasc_paciente(String dt_nasc_paciente) {
+        this.dt_nasc_paciente = dt_nasc_paciente;
+    }
+
+    public Login getLogin() {
+        return login;
+    }
+
+    public void setLogin(Login login) {
+        this.login = login;
+    }
 }

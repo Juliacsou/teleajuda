@@ -3,30 +3,35 @@ package br.com.fiap.teleajuda.domain.model;
 import br.com.fiap.teleajuda.domain.model.pessoa.Paciente;
 
 public class PesquisaSatisfacao {
-    private int codigo;
-    private int notaApp;
-    private int notaSite;
-    private int notaSuporte;
+    private int id_pesquisa_satis;
+    private int nt_app;
+    private int nt_site;
+    private int nt_suporte;
+    private String dt_pesquisa;
     private Paciente paciente;
 
     //Contrutor
-    public PesquisaSatisfacao(int codigo, int notaApp, int notaSite, int notaSuporte, Paciente paciente) {
-        this.codigo = codigo;
-        this.notaApp = notaApp;
-        this.notaSite = notaSite;
-        this.notaSuporte = notaSuporte;
+    public PesquisaSatisfacao(int id_pesquisa_satis, int nt_app, int nt_site, int nt_suporte, String dt_pesquisa, Paciente paciente) {
+        this.id_pesquisa_satis = id_pesquisa_satis;
+        this.nt_app = nt_app;
+        this.nt_site = nt_site;
+        this.nt_suporte = nt_suporte;
+        this.dt_pesquisa = dt_pesquisa;
         this.paciente = paciente;
     }
 
+
     //Getters e Setters
-    public int getCodigo() {return codigo;}
-    public void setCodigo(int codigo) {this.codigo = codigo;}
-    public int getNotaApp() {return notaApp;}
-    public void setNotaApp(int notaApp) {this.notaApp = notaApp;}
-    public int getNotaSite() {return notaSite;}
-    public void setNotaSite(int notaSite) {this.notaSite = notaSite;}
-    public int getNotaSuporte() {return notaSuporte;}
-    public void setNotaSuporte(int notaSuporte) {this.notaSuporte = notaSuporte;}
+    public int getId_pesquisa_satis() {return id_pesquisa_satis;}
+    public void setId_pesquisa_satis(int id_pesquisa_satis) {this.id_pesquisa_satis = id_pesquisa_satis;}
+    public int getNt_app() {return nt_app;}
+    public void setNt_app(int nt_app) {this.nt_app = nt_app;}
+    public int getNt_site() {return nt_site;}
+    public void setNt_site(int nt_site) {this.nt_site = nt_site;}
+    public int getNt_suporte() {return nt_suporte;}
+    public void setNt_suporte(int nt_suporte) {this.nt_suporte = nt_suporte;}
+    public String getDt_pesquisa() {return dt_pesquisa;}
+    public void setDt_pesquisa(String dt_pesquisa) {this.dt_pesquisa = dt_pesquisa;}
     public Paciente getPaciente() {return paciente;}
     public void setPaciente(Paciente paciente) {this.paciente = paciente;}
 
@@ -59,10 +64,10 @@ public class PesquisaSatisfacao {
     }
 
     public void exibirPesquisaSatisfacao() {
-        System.out.println("Nota do App: " + notaApp);
-        System.out.println("Nota do Site: " + notaSite);
-        System.out.println("Nota do Suporte: " + notaSuporte);
-        System.out.println("Sua nota média foi " + calcularMedia(notaApp, notaSite, notaSuporte));
+        System.out.println("Nota do App: " + nt_app);
+        System.out.println("Nota do Site: " + nt_site);
+        System.out.println("Nota do Suporte: " + nt_suporte);
+        System.out.println("Sua nota média foi " + calcularMedia(nt_app, nt_site, nt_suporte));
 
     }
 }

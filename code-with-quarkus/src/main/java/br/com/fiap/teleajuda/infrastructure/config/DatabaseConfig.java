@@ -34,8 +34,8 @@ public class DatabaseConfig {
     }
 
     @ApplicationScoped
-    public UserRepository userRepository(DatabaseConnection databaseConnection) {
-        return new JdbcUserRepository (databaseConnection);
+    public LoginRepository userRepository(DatabaseConnection databaseConnection) {
+        return new JdbcLoginRepository(databaseConnection);
     }
 
 }

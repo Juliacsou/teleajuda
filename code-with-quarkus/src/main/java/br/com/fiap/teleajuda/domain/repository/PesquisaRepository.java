@@ -8,8 +8,13 @@ import java.util.List;
 
 public interface PesquisaRepository {
     PesquisaSatisfacao criar(PesquisaSatisfacao pesquisa);
+
     List<PesquisaSatisfacao> exibirPesquisasPaciente (Paciente paciente);
     PesquisaSatisfacao buscarPorId(int id) throws EntidadeNaoLocalizada;
-    void editar(PesquisaSatisfacao pesquisa);
     List<PesquisaSatisfacao> exibitTodasPesquisas ();
+
+    void editar(PesquisaSatisfacao pesquisa);
+
+    void excluirPesquisa(int id);
+
 }
