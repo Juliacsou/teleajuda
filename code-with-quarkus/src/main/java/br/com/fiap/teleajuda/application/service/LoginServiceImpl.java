@@ -41,7 +41,7 @@ public class LoginServiceImpl implements LoginService {
 
     @Override
     public Login buscarPorUserSenha(String user_login, String senha_login) throws EntidadeNaoLocalizada {
-        return null;
+        return loginRepository.buscarPorUserSenha(user_login, senha_login);
     }
 
     @Override
@@ -50,12 +50,12 @@ public class LoginServiceImpl implements LoginService {
     }
 
     @Override
-    public void editar(Login user) {
-
+    public void editar(Login user) throws EntidadeNaoLocalizada {
+        loginRepository.editar(user);
     }
 
     @Override
     public void excluirLogin(int id) {
-
+        loginRepository.excluirLogin(id);
     }
 }

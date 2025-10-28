@@ -14,6 +14,12 @@ public class Login {
         this.tp_login = tp_login;
     }
 
+    public Login(String user_login, String senha_login, String tp_login) {
+        this.user_login = user_login;
+        this.senha_login = senha_login;
+        this.tp_login = tp_login;
+    }
+
     //Getters e Setters
     public int getId_login() {return id_login;}
     public void setId_login(int id_login) {this.id_login = id_login;}

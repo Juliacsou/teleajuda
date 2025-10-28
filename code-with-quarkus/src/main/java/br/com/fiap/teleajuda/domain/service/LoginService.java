@@ -12,7 +12,7 @@ public interface LoginService {
     Login buscarPorUserSenha(String user_login, String senha_login) throws EntidadeNaoLocalizada;
     Login buscarPorUser(String user) throws EntidadeNaoLocalizada;
 
-    void editar(Login user);
+    void editar(Login user) throws EntidadeNaoLocalizada;
 
     void excluirLogin(int id);
 }
