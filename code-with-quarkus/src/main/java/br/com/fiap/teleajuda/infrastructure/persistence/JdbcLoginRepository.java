@@ -129,6 +129,31 @@ public class JdbcLoginRepository implements LoginRepository {
         }
     }
 
+    @Override
+    public Login buscarPorUser(String user) throws EntidadeNaoLocalizada {
+        String sqlUser = """
+                SELECT ID_LOGIN, USER_LOGIN, SENHA_LOGIN, TP_LOGIN
+                FROM T_TAJ_LOGIN
+                WHERE USER_LOGIN = ?
+                """;
+
+        try (Connection conn = this.databaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sqlUser)) {
+
+            stmt.setString(1, user);
+
+            try(ResultSet rs = stmt.executeQuery()){
+                if (rs.next()) {
+                    Login login = mapearLogin(rs);
+                    return login;
+                }else{
+                    throw new EntidadeNaoLocalizada("Não foi possivel encontrar o login");
+                }
+            }
+        } catch (SQLException e) {
+            throw new InfraestruturaException("Erro ao buscar usuario por id", e);
+        }
+    }
 
 
     @Override

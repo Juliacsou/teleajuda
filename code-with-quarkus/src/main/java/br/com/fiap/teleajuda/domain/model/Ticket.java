@@ -22,15 +22,16 @@ public class Ticket {
         this.status = status;
         this.paciente = paciente;
     }
-    public Ticket(int id_ticket, String assunto, String descricao, String dt_abertura, String status) {
+    public Ticket(int id_ticket, String assunto, String descricao, String resposta, String dt_abertura, String dt_fechamento, String status, Paciente paciente) {
         this.id_ticket = id_ticket;
         this.assunto = assunto;
         this.descricao = descricao;
+        this.resposta = resposta;
         this.dt_abertura = dt_abertura;
+        this.dt_fechamento = dt_fechamento;
         this.status = status;
+        this.paciente = paciente;
     }
-
-
 
     //Getters e Setters
     public int getId_ticket() {return id_ticket;}

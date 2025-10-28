@@ -2,7 +2,6 @@ package br.com.fiap.teleajuda.infrastructure.persistence;
 
 import br.com.fiap.teleajuda.domain.exceptions.EntidadeNaoLocalizada;
 import br.com.fiap.teleajuda.domain.model.Ticket;
-import br.com.fiap.teleajuda.domain.model.pessoa.Funcionario;
 import br.com.fiap.teleajuda.domain.model.pessoa.Paciente;
 import br.com.fiap.teleajuda.domain.repository.TicketRepository;
 import br.com.fiap.teleajuda.infrastructure.exceptions.InfraestruturaException;
@@ -21,70 +20,126 @@ public class JdbcTicketRepository implements TicketRepository {
 
 
     @Override
-        public Ticket criar(Ticket ticket) {
-            String sql = """
-                INSERT INTO T_TAJ_TICKET (ID_TICKET, ASSUNTO, DESCRICAO, STATUS, DT_ABERTURA, CPF_PACIENTE, ID_FUNCIONARIO) VALUES (?, ?, ?, ?, ?, ?, ?)
-                """;
+    public Ticket criar(Ticket ticket) {
+        String sql = """
+            INSERT INTO T_TAJ_TICKET (ASSUNTO, DESCRICAO, RESPOSTA, DT_ABERTURA, DT_FECHAMENTO, STATUS, PACIENTE_CPF_PACIENTE)
+            VALUES (?, ?, NULL, TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS'), NULL, ?, ?)
+    """;
 
         try (Connection conn = this.databaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, ticket.getCodigo());
-            stmt.setString(2, ticket.getAssunto());
-            stmt.setString(3, ticket.getDescricao());
-            stmt.setString(4, "A");
-            Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
-            stmt.setTimestamp(5, currentTimestamp);
-            stmt.setString(6, ticket.getPaciente().getCpf());
-            stmt.setNull(7, java.sql.Types.INTEGER);
+            stmt.setString(1, ticket.getAssunto());
+            stmt.setString(2, ticket.getDescricao());
+            stmt.setString(3, "A");
+            stmt.setString(4, ticket.getPaciente().getCpf_paciente());
 
             int affectedRows = stmt.executeUpdate();
             if (affectedRows == 0) {
-                throw new InfraestruturaException("Erro ao salvar, nenhuma linha da banco foi afetada");
+                throw new InfraestruturaException("Erro ao criar ticket pois nenhuma linha foi afetada");
             }
-
             return ticket;
-
         } catch (SQLException e) {
             throw new InfraestruturaException("Erro ao criar ticket", e);
         }
+    }
+
+
+    @Override
+        public Ticket buscarPorId(int id) throws EntidadeNaoLocalizada {
+            final String sql = """
+                SELECT t.ID_TICKET, t.ASSUNTO, t.DESCRICAO, t.RESPOSTA, t.DT_ABERTURA, t.DT_FECHAMENTO, t.STATUS, t.PACIENTE_CPF_PACIENTE,
+                    p.CPF_PACIENTE AS CPF_PACIENTE, p.NM_PACIENTE AS NOME, p.MAIL_PACIENTE AS EMAIL
+                FROM T_TAJ_TICKET t
+                JOIN T_TAJ_PACIENTE p
+                ON t.PACIENTE_CPF_PACIENTE = p.CPF_PACIENTE
+                WHERE t.ID_TICKET = ?
+            """;
+
+            try (Connection conn = this.databaseConnection.getConnection();
+                 PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+                stmt.setInt(1, id);
+
+                try (ResultSet rs = stmt.executeQuery()) {
+                    if (rs.next()) {
+                        return mapearTicket(rs);
+                    }
+                }
+            } catch (SQLException e) {
+                throw new EntidadeNaoLocalizada("Erro ao buscar ticket por id", e);
+            }
+
+            throw new EntidadeNaoLocalizada("Ticket nao encontrado");
         }
 
-        @Override
-        public Ticket buscarPorId(int id) throws EntidadeNaoLocalizada {
-            String sql = """
-                SELECT ID_TICKET, ASSUNTO, DESCRICAO, RESPOSTA, STATUS, DATA FROM TICKET WHERE ID_TICKET = ?
+
+    @Override
+    public List<Ticket> exibirTodosTickets() {
+        String sql = """
+            SELECT t.ID_TICKET, t.ASSUNTO, t.DESCRICAO, t.RESPOSTA, t.DT_ABERTURA, t.DT_FECHAMENTO, t.STATUS, t.PACIENTE_CPF_PACIENTE,
+                    p.CPF_PACIENTE AS CPF_PACIENTE, p.NM_PACIENTE AS NOME, p.MAIL_PACIENTE AS EMAIL
+            FROM T_TAJ_TICKET t
+            JOIN T_TAJ_PACIENTE p
+            ON t.PACIENTE_CPF_PACIENTE = p.CPF_PACIENTE
+            """;
+        List<Ticket> tickets = new ArrayList<>();
+
+        try (Connection conn = this.databaseConnection.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql);
+         ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Ticket ticket = mapearTicket(rs);
+                tickets.add(ticket);
+            }
+        } catch (SQLException e) {
+            throw new InfraestruturaException("Erro ao buscar todos os tickets", e);
+    }
+        return tickets;
+    }
+
+    @Override
+    public List<Ticket> exibitTicketsPaciente(Paciente paciente) {
+        String sql = """
+                SELECT ID_TICKET, ASSUNTO, DESCRICAO, RESPOSTA, DT_ABERTURA, DT_FECHAMENTO, STATUS, PACIENTE_CPF_PACIENTE
+                FROM T_TAJ_TICKET
+                WHERE PACIENTE_CPF_PACIENTE = ?
+                ORDER BY ID_TICKET
                 """;
+
+        List<Ticket> tickets = new ArrayList<>();
 
         try (Connection conn = this.databaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, id);
+            stmt.setString(1, paciente.getCpf_paciente());
 
-            ResultSet resultSet = stmt.executeQuery();
-            if (resultSet.next()) {
-                int idFromBd = resultSet.getInt("ID_TICKET");
-                String assunto = resultSet.getString("ASSUNTO");
-                String descricao = resultSet.getString("DESCRICAO");
-                String resposta = resultSet.getString("RESPOSTA");
-                boolean status = resultSet.getBoolean("STATUS");
-                String data = resultSet.getString("DT_ABERTURA");
-                resultSet.close();
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                int idTicket        = rs.getInt("ID_TICKET");
+                String assunto      = rs.getString("ASSUNTO");
+                String descricao    = rs.getString("DESCRICAO");
+                String resposta     = rs.getString("RESPOSTA");
+                String dtAbertura   = rs.getString("DT_ABERTURA");
+                String dtFechamento = rs.getString("DT_FECHAMENTO");
+                String status       = rs.getString("STATUS");
+                String cpfTicket    = rs.getString("PACIENTE_CPF_PACIENTE");
 
-
-                return new Ticket(idFromBd, assunto, descricao, status, null, data);
+                Ticket ticket = new Ticket(idTicket, assunto, descricao, resposta, dtAbertura, dtFechamento, status, paciente);
+                tickets.add(ticket);
             }
-
+            return tickets;
         } catch (SQLException e) {
-            throw new EntidadeNaoLocalizada("Erro ao buscar ticket por id", e);
+            throw new InfraestruturaException("Erro ao buscar todos os tickets", e);
         }
-        throw new EntidadeNaoLocalizada("Ticket nao encontrado");
-        }
+    }
 
         @Override
         public void editarDescricaoTicket(String descricao, int id) {
             String sql = """
-                UPDATE TICKET SET DESCRICAO = ?
+                UPDATE T_TAJ_TICKET
+                SET DESCRICAO = ?
                 WHERE ID_TICKET = ?
                 """;
 
@@ -105,9 +160,10 @@ public class JdbcTicketRepository implements TicketRepository {
         }
 
         @Override
-        public void responder(int idFuncionario, String resposta, int idTicket) {
+        public void responder(String resposta, int idTicket) {
             String sql = """
-                UPDATE TICKET SET RESPOSTA = ?, ID_FUNCIONARIO = ?
+                UPDATE T_TAJ_TICKET
+                SET RESPOSTA = ?
                 WHERE ID_TICKET = ?
                 """;
 
@@ -115,7 +171,6 @@ public class JdbcTicketRepository implements TicketRepository {
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
                 stmt.setString(1, resposta);
-                stmt.setInt(2, idFuncionario);
                 stmt.setInt(2, idTicket);
 
                 int affectedRows = stmt.executeUpdate();
@@ -131,7 +186,8 @@ public class JdbcTicketRepository implements TicketRepository {
         @Override
         public void fecharTicket(int id) {
             String sql = """
-                UPDATE TICKET SET STATUS = FALSE
+                UPDATE T_TAJ_TICKET
+                SET STATUS = 'F', DT_FECHAMENTO = TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
                 WHERE ID_TICKET = ?
                 """;
 
@@ -153,7 +209,8 @@ public class JdbcTicketRepository implements TicketRepository {
         @Override
         public void abrirTicket(int id) {
             String sql = """
-                UPDATE TICKET SET STATUS = TRUE
+                UPDATE T_TAJ_TICKET
+                SET STATUS = 'A'
                 WHERE ID_TICKET = ?
                 """;
 
@@ -174,105 +231,48 @@ public class JdbcTicketRepository implements TicketRepository {
 
     @Override
     public void deletarTicket(int id) {
+        String sql = """
+            DELETE FROM T_TAJ_TICKET
+            WHERE ID_TICKET = ?
+            """;
 
+        try (Connection conn = this.databaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+
+            int affectedRows = stmt.executeUpdate();
+
+            if (affectedRows == 0) {
+                throw new InfraestruturaException("Nenhum ticket encontrado para exclusão");
+            }
+
+        } catch (SQLException e) {
+            throw new InfraestruturaException("Erro ao deletar ticket", e);
+        }
     }
 
-    @Override
-        public List<Ticket> exibirTodosTickets() {
-            String sql = """
-                SELECT ID_TICKET, ASSUNTO, DESCRICAO, RESPOSTA, STATUS, DT_ABERTURA
-                FROM TICKET ORDER BY ID_TICKET
-                """;
 
-            try (Connection conn = this.databaseConnection.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
+    private Ticket mapearTicket(ResultSet rs) throws SQLException {
+        int    idTicket       = rs.getInt("ID_TICKET");
+        String assunto        = rs.getString("ASSUNTO");
+        String descricao      = rs.getString("DESCRICAO");
+        String resposta       = rs.getString("RESPOSTA");
+        String dtAbertura     = rs.getString("DT_ABERTURA");
+        String dtFechamento   = rs.getString("DT_FECHAMENTO");
+        String status         = rs.getString("STATUS");
+        String cpfDoTicket    = rs.getString("PACIENTE_CPF_PACIENTE");
 
-                List<Ticket> tickets = new ArrayList<>();
+        String cpfPaciente    = rs.getString("CPF_PACIENTE");
+        String nomePaciente   = rs.getString("NOME");
+        String emailPaciente  = rs.getString("EMAIL");
 
-                ResultSet rs = stmt.executeQuery();
-                while (rs.next()) {
-                    int id = rs.getInt("ID");
-                    String assunto = rs.getString("ASSUNTO");
-                    String descricao = rs.getString("DESCRICAO");
-                    String resposta = rs.getString("RESPOSTA");
-                    boolean status = rs.getBoolean("STATUS");
-                    String data = rs.getString("DT_ABERTURA");
+        Paciente paciente = new Paciente(cpfPaciente, nomePaciente, emailPaciente);
 
-                    Ticket ticket = new Ticket(id, assunto, descricao, resposta, status, null, null, data);
-                    tickets.add(ticket);
-                }
+        return new Ticket(idTicket, assunto, descricao, resposta, dtAbertura, dtFechamento, status, paciente);
+    }
 
-                return tickets;
-            } catch (SQLException e) {
-                throw new InfraestruturaException("Erro ao buscar todos os tickets", e);
-            }
-        }
 
-        @Override
-        public List<Ticket> exibitTicketsPaciente(Paciente paciente) {
-            String sql = """
-                SELECT ID_TICKET, ASSUNTO, DESCRICAO, RESPOSTA, STATUS, DT_ABERTURA
-                FROM TICKET WHERE CPF_PACIENTE = ?
-                """;
 
-            try (Connection conn = this.databaseConnection.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-                List<Ticket> tickets = new ArrayList<>();
-
-                stmt.setString(1, paciente.getCpf());
-
-                ResultSet rs = stmt.executeQuery();
-                while (rs.next()) {
-                    int id = rs.getInt("ID_TICKET");
-                    String assunto = rs.getString("ASSUNTO");
-                    String descricao = rs.getString("DESCRICAO");
-                    String resposta = rs.getString("RESPOSTA");
-                    Boolean status = rs.getBoolean("STATUS");
-                    String data = rs.getString("DT_ABERTURA");
-
-                    Ticket ticket = new Ticket(id, assunto, descricao, resposta, status, paciente, null, data);
-                    tickets.add(ticket);
-                }
-
-                return tickets;
-            } catch (SQLException e) {
-                throw new InfraestruturaException("Erro ao buscar todos os tickets", e);
-            }
-        }
-
-        @Override
-        public List<Ticket> exibitTicketsFuncionario(Funcionario funcionario) {
-            String sql = """
-                SELECT ID_TICKET, ASSUNTO, DESCRICAO, RESPOSTA, STATUS, DT_ABERTURA
-                FROM TICKET WHERE ID_FUNCIONARIO = ?
-                """;
-
-            try (Connection conn = this.databaseConnection.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-                List<Ticket> tickets = new ArrayList<>();
-
-                stmt.setInt(1, funcionario.getCodigo());
-
-                ResultSet rs = stmt.executeQuery();
-                while (rs.next()) {
-                    int id = rs.getInt("ID_TICKET");
-                    String assunto = rs.getString("ASSUNTO");
-                    String descricao = rs.getString("DESCRICAO");
-                    String resposta = rs.getString("RESPOSTA");
-                    Boolean status = rs.getBoolean("STATUS");
-                    String data = rs.getString("DT_ABERTURA");
-
-                    Ticket ticket = new Ticket(id, assunto, descricao, resposta, status, null, funcionario, data);
-                    tickets.add(ticket);
-                }
-
-                return tickets;
-            } catch (SQLException e) {
-                throw new InfraestruturaException("Erro ao buscar todos os tickets", e);
-            }
-        }
-
-    
 }

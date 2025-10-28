@@ -20,17 +20,17 @@ public class JdbcPesquisaRepository implements PesquisaRepository {
     @Override
         public PesquisaSatisfacao criar(PesquisaSatisfacao pesquisa) {
             String sql = """
-                INSERT INTO PESQUISA (NOTAAPP, NOTASITE, NOTASUPORTE, FK_PACIENTE)
-                VALUES (?, ?, ?, ?)
+                INSERT INTO T_TAJ_PESQUISA_SATIS (NT_APP, NT_SITE, NT_SUPORTE, DT_PESQUISA, PACIENTE_CPF_PACIENTE)
+                VALUES (?, ?, ?, TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS', ?)
                 """;
 
             try (Connection conn = this.databaseConnection.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-                stmt.setInt(1, pesquisa.getNotaApp());
-                stmt.setInt(2, pesquisa.getNotaSite());
-                stmt.setInt(3, pesquisa.getNotaSuporte());
-                stmt.setString(4, pesquisa.getPaciente().getCpf());
+                stmt.setInt(1, pesquisa.getNt_app());
+                stmt.setInt(2, pesquisa.getNt_site());
+                stmt.setInt(3, pesquisa.getNt_suporte());
+                stmt.setString(4, pesquisa.getPaciente().getCpf_paciente());
 
                 int affectedRows = stmt.executeUpdate();
                 if (affectedRows == 0) {
@@ -44,132 +44,152 @@ public class JdbcPesquisaRepository implements PesquisaRepository {
             }
         }
 
-        @Override
-        public List<PesquisaSatisfacao> exibirPesquisasPaciente(Paciente paciente) {
-            String sql = """
-                SELECT ID, NOTA_APP, NOTA_SITE, NOTA_SUPORTE
-                FROM PESQUISA WHERE FK_PACIENTE = ?
-                """;
-
-            try (Connection conn = this.databaseConnection.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-                List<PesquisaSatisfacao> pesquisas = new ArrayList<>();
-
-                stmt.setString(1, paciente.getCpf());
-
-                ResultSet resultSet = stmt.executeQuery();
-                while (resultSet.next()) {
-                    int codigo = resultSet.getInt("ID");
-                    int notaApp = resultSet.getInt("NOTA_APP");
-                    int notaSite = resultSet.getInt("NOTA_SITE");
-                    int notaSuporte = resultSet.getInt("NOTA_SUPORTE");
-
-                    resultSet.close();
-
-                    PesquisaSatisfacao pesquisa = new PesquisaSatisfacao(codigo, notaApp, notaSite, notaSuporte, paciente);
-                    pesquisas.add(pesquisa);
-                }
-                return pesquisas;
-
-            } catch (SQLException e) {
-                throw new InfraestruturaException("Erro ao buscar todos as pesquisas", e);
+    @Override
+    public PesquisaSatisfacao buscarPorId(int id) throws EntidadeNaoLocalizada {
+        String sql = """
+               SELECT p.ID_PESQUISA_SATIS, p.NT_APP, p.NT_SITE, p.NT_SUPORTE, p.DT_PESQUISA, pa.CPF_PACIENTE, pa.NOME, pa.EMAIL
+               FROM T_TAJ_PESQUISA_SATIS p
+               JOIN T_TAJ_PACIENTE pa ON pa.CPF_PACIENTE = p.PACIENTE_CPF_PACIENTE
+               WHERE p.ID_PESQUISA_SATIS = ?
+        """;
+        try (Connection conn = this.databaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            ResultSet resultSet = stmt.executeQuery();
+            if (resultSet.next()) {
+                return mapearPesquisa(resultSet);
             }
+        } catch (SQLException e) {
+            throw new EntidadeNaoLocalizada("Erro ao buscar pesquisa por paciente", e);
         }
+        throw new EntidadeNaoLocalizada("Cliente nao encontrado");
+    }
 
-        @Override
-        public PesquisaSatisfacao buscarPorId(int id) throws EntidadeNaoLocalizada {
-            String sql = """
-                SELECT ID, NOTA_APP, NOTA_SITE, NOTA_SUPORTE
-                FROM PESQUISA WHERE ID = ?
-                """;
+    @Override
+    public List<PesquisaSatisfacao> exibirPesquisasPaciente(Paciente paciente) {
+        String sql = """
+                SELECT p.ID_PESQUISA_SATIS, p.NT_APP, p.NT_SITE, p.NT_SUPORTE, p.DT_PESQUISA
+                FROM T_TAJ_PESQUISA_SATIS p
+                WHERE p.PACIENTE_CPF_PACIENTE = ?
+        """;
 
-            try (Connection conn = this.databaseConnection.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
+        List<PesquisaSatisfacao> pesquisas = new ArrayList<>();
 
-                stmt.setInt(1, id);
+        try (Connection conn = this.databaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-                ResultSet resultSet = stmt.executeQuery();
-                if (resultSet.next()) {
-                    int codigo = resultSet.getInt("ID");
-                    int notaApp = resultSet.getInt("NOTA_APP");
-                    int notaSite = resultSet.getInt("NOTA_SITE");
-                    int notaSuporte = resultSet.getInt("NOTA_SUPORTE");
+            stmt.setString(1, paciente.getCpf_paciente());
 
-                    resultSet.close();
+            ResultSet rs = stmt.executeQuery();
 
-                    return new PesquisaSatisfacao(codigo, notaApp, notaSite, notaSuporte, null);
-                }
-
-            } catch (SQLException e) {
-                throw new EntidadeNaoLocalizada("Erro ao buscar pesquisa por paciente", e);
+            while (rs.next()) {
+                int id = rs.getInt("ID_PESQUISA_SATIS");
+                int ntApp = rs.getInt("NT_APP");
+                int ntSite = rs.getInt("NT_SITE");
+                int ntSuporte = rs.getInt("NT_SUPORTE");
+                String dtPesq = rs.getString("DT_PESQUISA");
+                rs.close();
+                PesquisaSatisfacao pesquisa = new PesquisaSatisfacao(id, ntApp, ntSite, ntSuporte, dtPesq, paciente);
+                pesquisas.add(pesquisa);
             }
-            throw new EntidadeNaoLocalizada("Cliente nao encontrado");
+            return pesquisas;
+        } catch (SQLException e) {
+            throw new InfraestruturaException("Erro ao buscar todos as pesquisas", e);
         }
+    }
 
-        @Override
-        public void editar(PesquisaSatisfacao pesquisa) {
-           String sql = """
-                UPDATE PESQUISA SET NOTA_APP = ?, NOTA_SITE = ?, NOTA_SUPORTE = ?
-                WHERE ID = ?
-                """;
+
+
+    @Override
+    public List<PesquisaSatisfacao> exibitTodasPesquisas() {
+        String sql = """
+               SELECT p.ID_PESQUISA_SATIS, p.NT_APP, p.NT_SITE, p.NT_SUPORTE, p.DT_PESQUISA, pa.CPF_PACIENTE, pa.NOME, pa.EMAIL
+               FROM T_TAJ_PESQUISA_SATIS p
+               JOIN T_TAJ_PACIENTE pa ON pa.CPF_PACIENTE = p.PACIENTE_CPF_PACIENTE
+        """;
+
+        List<PesquisaSatisfacao> pesquisas = new ArrayList<>();
+
+        try (Connection conn = this.databaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                PesquisaSatisfacao pesquisa = mapearPesquisa(rs);
+                pesquisas.add(pesquisa);
+            }
+            return pesquisas;
+        } catch (SQLException e) {
+            throw new InfraestruturaException("Erro ao buscar todas as pesquisas", e);
+        }
+    }
+
+
+    @Override
+    public void editar(PesquisaSatisfacao pesquisa) {
+        String sql = """
+               UPDATE T_TAJ_PESQUISA_SATIS SET NT_APP = ?, NT_SITE = ?, NT_SUPORTE = ?
+               WHERE ID_PESQUISA_SATIS = ?
+               """;
+        try (Connection conn = databaseConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, pesquisa.getNt_app());
+            stmt.setInt(2, pesquisa.getNt_site());
+            stmt.setInt(3, pesquisa.getNt_suporte());
+            stmt.setInt(4, pesquisa.getId_pesquisa_satis());
+
+            int affectedRows = stmt.executeUpdate();
+
+            if (affectedRows == 0) {
+                throw new InfraestruturaException("Erro editar pesquisa pois nenhuma linha foi afetada");
+            }
+        } catch (SQLException e) {
+            throw new InfraestruturaException("Erro ao editar pesquisa", e);
+        }
+    }
+
+    @Override
+    public void excluirPesquisa(int id) {
+        String sql = """
+        DELETE FROM T_TAJ_PESQUISA_SATIS
+        WHERE ID_PESQUISA_SATIS = ?
+        """;
 
         try (Connection conn = databaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, pesquisa.getNotaApp());
-            stmt.setInt(2, pesquisa.getNotaSite());
-            stmt.setInt(3, pesquisa.getNotaSuporte());
-            stmt.setInt(4, pesquisa.getCodigo());
-            
+            stmt.setInt(1, id);
 
             int affectedRows = stmt.executeUpdate();
+
             if (affectedRows == 0) {
-                throw new InfraestruturaException("Erro editar pesquisa pois nenhuma linha foi afetada");
+                throw new InfraestruturaException("Erro ao excluir pesquisa: nenhuma linha foi afetada");
             }
 
         } catch (SQLException e) {
-            throw new InfraestruturaException("Erro ao editar pesquisa", e);
-        };
+            throw new InfraestruturaException("Erro ao excluir pesquisa", e);
         }
-
-    @Override
-    public void excluirPesquisa(int id) {
-
     }
 
-    @Override
-        public List<PesquisaSatisfacao> exibitTodasPesquisas() {
-             String sql = """
-                SELECT ID, NOTA_APP, NOTA_SITE, NOTA_SUPORTE
-                FROM PESQUISA
-                """;
 
-            try (Connection conn = this.databaseConnection.getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
+    private PesquisaSatisfacao mapearPesquisa(ResultSet rs) throws SQLException {
+        int id = rs.getInt("ID_PESQUISA_SATIS");
+        int ntApp = rs.getInt("NT_APP");
+        int ntSite = rs.getInt("NT_SITE");
+        int ntSuporte = rs.getInt("NT_SUPORTE");
+        String dtPesquisa = rs.getString("DT_PESQUISA");
 
-                List<PesquisaSatisfacao> pesquisas = new ArrayList<>();
+        String cpfPaciente = rs.getString("CPF_PACIENTE");
+        String nomePaciente = rs.getString("NOME");
+        String emailPaciente = rs.getString("EMAIL");
 
-                ResultSet resultSet = stmt.executeQuery();
-                while (resultSet.next()) {
-                    int codigo = resultSet.getInt("ID");
-                    int notaApp = resultSet.getInt("NOTA_APP");
-                    int notaSite = resultSet.getInt("NOTA_SITE");
-                    int notaSuporte = resultSet.getInt("NOTA_SUPORTE");
+        Paciente paciente = new Paciente(cpfPaciente, nomePaciente, emailPaciente);
 
-                    resultSet.close();
+        return new PesquisaSatisfacao(id, ntApp, ntSite, ntSuporte, dtPesquisa, paciente);
+    }
 
-                    PesquisaSatisfacao pesquisa = new PesquisaSatisfacao(codigo, notaApp, notaSite, notaSuporte, null);
-                    pesquisas.add(pesquisa);
-                }
-                return pesquisas;
 
-            } catch (SQLException e) {
-                throw new InfraestruturaException("Erro ao buscar todos as pesquisas", e);
-            }
-        }
 
-        
 
-    
+
 }

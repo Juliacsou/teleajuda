@@ -1,4 +1,4 @@
-package br.com.fiap.teleajuda.domain.repository;
+package br.com.fiap.teleajuda.domain.service;
 
 import br.com.fiap.teleajuda.domain.exceptions.EntidadeNaoLocalizada;
 import br.com.fiap.teleajuda.domain.model.Ticket;
@@ -6,7 +6,7 @@ import br.com.fiap.teleajuda.domain.model.pessoa.Paciente;
 
 import java.util.List;
 
-public interface TicketRepository {
+public interface TicketService {
     Ticket criar(Ticket ticket);
 
     Ticket buscarPorId(int id) throws EntidadeNaoLocalizada;
@@ -19,5 +19,4 @@ public interface TicketRepository {
     void abrirTicket(int id);
 
     void deletarTicket(int id);
-
 }

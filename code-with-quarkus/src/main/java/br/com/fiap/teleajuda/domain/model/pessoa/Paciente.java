@@ -29,6 +29,12 @@ public class Paciente {
         this.dt_nasc_paciente = dt_nasc_paciente;
     }
 
+    public Paciente(String cpf_paciente, String nm_paciente, String mail_paciente) {
+        this.cpf_paciente = cpf_paciente;
+        this.nm_paciente = nm_paciente;
+        this.mail_paciente = mail_paciente;
+    }
+
     //GETTERS E SETTERS
     public String getCpf_paciente() {
         return cpf_paciente;

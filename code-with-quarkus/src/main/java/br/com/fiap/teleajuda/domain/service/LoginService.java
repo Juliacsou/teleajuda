@@ -1,9 +1,9 @@
-package br.com.fiap.teleajuda.domain.repository;
+package br.com.fiap.teleajuda.domain.service;
 
 import br.com.fiap.teleajuda.domain.exceptions.EntidadeNaoLocalizada;
 import br.com.fiap.teleajuda.domain.model.pessoa.Login;
 
-public interface LoginRepository {
+public interface LoginService {
     Login criarLogin(Login login);
 
     Login buscarPorId(int id) throws EntidadeNaoLocalizada;
