@@ -1,7 +1,6 @@
 package br.com.fiap.teleajuda.domain.model;
 
-import br.com.fiap.teleajuda.domain.model.pessoa.Funcionario;
-import br.com.fiap.teleajuda.domain.model.pessoa.Paciente;
+import br.com.fiap.teleajuda.domain.repository.FuncionarioRepository;
 
 public class Ticket {
     private int id_ticket;
@@ -12,16 +11,8 @@ public class Ticket {
     private String dt_fechamento;
     private String status;
     private Paciente paciente;
+    private Funcionario funcionario;
 
-    //contrutor
-    public Ticket(int id_ticket, String assunto, String descricao, String dt_abertura, String status, Paciente paciente) {
-        this.id_ticket = id_ticket;
-        this.assunto = assunto;
-        this.descricao = descricao;
-        this.dt_abertura = dt_abertura;
-        this.status = status;
-        this.paciente = paciente;
-    }
     public Ticket(int id_ticket, String assunto, String descricao, String resposta, String dt_abertura, String dt_fechamento, String status, Paciente paciente) {
         this.id_ticket = id_ticket;
         this.assunto = assunto;
@@ -33,7 +24,15 @@ public class Ticket {
         this.paciente = paciente;
     }
 
-    //Getters e Setters
+    public Ticket(String assunto, String descricao, String dt_abertura, String status, Paciente paciente) {
+        this.assunto = assunto;
+        this.descricao = descricao;
+        this.dt_abertura = dt_abertura;
+        this.status = status;
+        this.paciente = paciente;
+    }
+
+
     public int getId_ticket() {return id_ticket;}
     public void setId_ticket(int id_ticket) {this.id_ticket = id_ticket;}
     public String getAssunto() {return assunto;}
@@ -50,5 +49,6 @@ public class Ticket {
     public void setStatus(String status) {this.status = status;}
     public Paciente getPaciente() {return paciente;}
     public void setPaciente(Paciente paciente) {this.paciente = paciente;}
-
+    public Funcionario getFuncionario() {return funcionario;}
+    public void setFuncionario(Funcionario funcionario) {this.funcionario = funcionario;}
 }

@@ -2,7 +2,7 @@ package br.com.fiap.teleajuda.domain.service;
 
 import br.com.fiap.teleajuda.domain.exceptions.EntidadeNaoLocalizada;
 import br.com.fiap.teleajuda.domain.model.PesquisaSatisfacao;
-import br.com.fiap.teleajuda.domain.model.pessoa.Paciente;
+import br.com.fiap.teleajuda.domain.model.Paciente;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ public interface PesquisaService {
 
     List<PesquisaSatisfacao> exibirPesquisasPaciente (Paciente paciente);
     PesquisaSatisfacao buscarPorId(int id) throws EntidadeNaoLocalizada;
-    List<PesquisaSatisfacao> exibitTodasPesquisas ();
+    List<PesquisaSatisfacao> exibirTodasPesquisas ();
 
     void editar(PesquisaSatisfacao pesquisa);
 

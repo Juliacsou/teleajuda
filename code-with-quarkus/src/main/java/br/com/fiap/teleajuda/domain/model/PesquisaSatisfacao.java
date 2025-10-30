@@ -1,7 +1,5 @@
 package br.com.fiap.teleajuda.domain.model;
 
-import br.com.fiap.teleajuda.domain.model.pessoa.Paciente;
-
 public class PesquisaSatisfacao {
     private int id_pesquisa_satis;
     private int nt_app;
