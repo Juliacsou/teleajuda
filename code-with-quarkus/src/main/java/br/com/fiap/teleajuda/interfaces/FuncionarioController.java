@@ -8,7 +8,7 @@ public interface FuncionarioController {
     Funcionario criarFuncionario(Funcionario funcionario);
 
     FuncionarioOutputDto buscarPorCpf(String cpf) throws EntidadeNaoLocalizada;
-    FuncionarioOutputDto validarFuncionario (String email, String senha);
+    FuncionarioOutputDto validarFuncionario (String cpf, String senha);
 
     void editarFuncionario(Funcionario funcionario);
 

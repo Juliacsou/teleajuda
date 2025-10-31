@@ -31,8 +31,8 @@ public class PacienteServiceImpl implements PacienteService {
     }
 
     @Override
-    public Paciente validarPaciente(String email, String senha) throws EntidadeNaoLocalizada {
-        return pacienteRepository.validarPaciente(email,senha);
+    public Paciente validarPaciente(String cpf, String senha) throws EntidadeNaoLocalizada {
+        return pacienteRepository.validarPaciente(cpf,senha);
     }
 
     @Override

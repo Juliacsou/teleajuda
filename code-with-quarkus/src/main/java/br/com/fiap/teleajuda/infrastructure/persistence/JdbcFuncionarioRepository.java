@@ -80,24 +80,24 @@ public class JdbcFuncionarioRepository implements FuncionarioRepository {
     }
 
     @Override
-    public Funcionario validarFuncionario(String email, String senha) {
+    public Funcionario validarFuncionario(String cpf, String senha) {
         final String sql = """
             SELECT cpf_funcionario, nm_funcionario, mail_funcionario, senha_funcionario
             FROM T_TAJ_FUNCIONARIO
-            WHERE mail_funcionario = ? AND senha_funcionario = ?
+            WHERE cpf_funcionario = ? AND senha_funcionario = ?
         """;
 
         try (Connection conn = databaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, email);
+            stmt.setString(1, cpf);
             stmt.setString(2, senha);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     String cpfBd = rs.getString("cpf_funcionario");
                     String nome = rs.getString("nm_funcionario");
-                    String emailBd = rs.getString("mail_funcionario");
+                    String email = rs.getString("mail_funcionario");
                     String senhaBd = rs.getString("senha_funcionario");
 
                     Funcionario funcionario = new Funcionario(cpfBd, nome, email, senha);

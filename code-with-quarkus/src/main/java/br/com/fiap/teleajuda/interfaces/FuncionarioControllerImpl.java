@@ -27,8 +27,8 @@ public class FuncionarioControllerImpl implements FuncionarioController {
 
 
     @Override
-    public FuncionarioOutputDto validarFuncionario(String email, String senha) {
-        Funcionario novoFunc = funcionarioService.validarFuncionario(email, senha);
+    public FuncionarioOutputDto validarFuncionario(String cpf, String senha) {
+        Funcionario novoFunc = funcionarioService.validarFuncionario(cpf, senha);
         return FuncionarioMapper.toDto(novoFunc);
     }
 

@@ -27,8 +27,8 @@ public class PacienteControllerImpl implements PacienteController {
     }
 
     @Override
-    public PacienteOutputDto validarPaciente(String email, String senha) throws EntidadeNaoLocalizada {
-        Paciente novoPaciente = pacienteService.validarPaciente(email, senha);
+    public PacienteOutputDto validarPaciente(String cpf, String senha) throws EntidadeNaoLocalizada {
+        Paciente novoPaciente = pacienteService.validarPaciente(cpf, senha);
         return PacienteMapper.toDto(novoPaciente);
     }
 

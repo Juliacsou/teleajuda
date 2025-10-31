@@ -44,10 +44,10 @@ public class PacienteRestController {
     }
 
     @GET
-    @Path("validar/{email}/{senha}")
-    public Response validarPaciente(@PathParam("email") String email, @PathParam("senha") String senha) {
+    @Path("/validar/{cpf}/{senha}")
+    public Response validarPaciente(@PathParam("cpf") String cpf, @PathParam("senha") String senha) {
         try {
-            PacienteOutputDto paciente = this.pacienteController.validarPaciente(email, senha);
+            PacienteOutputDto paciente = this.pacienteController.validarPaciente(cpf, senha);
             return Response.ok(paciente).build();
         } catch (RuntimeException | EntidadeNaoLocalizada e) {
             return Response.status(Response.Status.NOT_FOUND).build();

@@ -30,8 +30,8 @@ public class FuncionarioServiceImpl implements FuncionarioService {
     }
 
     @Override
-    public Funcionario validarFuncionario(String email, String senha) {
-        return funcionarioRepository.validarFuncionario(email,senha);
+    public Funcionario validarFuncionario(String cpf, String senha) {
+        return funcionarioRepository.validarFuncionario(cpf,senha);
     }
 
     @Override

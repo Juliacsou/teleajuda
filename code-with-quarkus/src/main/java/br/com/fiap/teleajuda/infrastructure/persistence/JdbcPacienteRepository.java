@@ -83,17 +83,19 @@ public class JdbcPacienteRepository implements PacienteRepository {
     }
 
     @Override
-    public Paciente validarPaciente(String email, String senha) throws EntidadeNaoLocalizada {
+    public Paciente validarPaciente(String cpf, String senha) throws EntidadeNaoLocalizada {
         final String sql = """
             SELECT cpf_paciente, nm_paciente, tel_paciente, mail_paciente, rghc, dt_nasc_paciente, senha_paciente
             FROM T_TAJ_PACIENTE
-            WHERE mail_paciente = ? AND senha_paciente = ?
+            WHERE cpf_paciente = ? AND senha_paciente = ?
         """;
+
+
 
         try (Connection conn = databaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setString(1, email);
+            System.out.println(cpf + senha);
+            stmt.setString(1, cpf);
             stmt.setString(2, senha);
 
             try (ResultSet rs = stmt.executeQuery()) {
@@ -107,6 +109,7 @@ public class JdbcPacienteRepository implements PacienteRepository {
                     String senhaBd = rs.getString("senha_paciente");
 
                     Paciente paciente = new Paciente(cpfBd, nome, tel, mail, rghc, dtnasc, senhaBd);
+                    return paciente;
                 } else {
                     throw new EntidadeNaoLocalizada("Paciente não encontrado ou credenciais inválidas.");
                 }
@@ -115,7 +118,7 @@ public class JdbcPacienteRepository implements PacienteRepository {
         } catch (SQLException e) {
             throw new InfraestruturaException("Erro ao validar paciente: " + e.getMessage(), e);
         }
-        return null;
+
     }
 
     @Override

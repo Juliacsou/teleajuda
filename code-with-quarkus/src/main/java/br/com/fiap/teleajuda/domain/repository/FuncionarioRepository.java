@@ -7,7 +7,7 @@ public interface FuncionarioRepository {
     Funcionario criarFuncionario(Funcionario funcionario);
 
     Funcionario buscarPorCpf(String cpf) throws EntidadeNaoLocalizada;
-    Funcionario validarFuncionario (String email, String senha);
+    Funcionario validarFuncionario (String cpf, String senha);
 
     void editarFuncionario(Funcionario funcionario);
 

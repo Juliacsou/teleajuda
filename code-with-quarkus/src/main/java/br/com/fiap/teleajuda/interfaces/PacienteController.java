@@ -8,7 +8,7 @@ public interface PacienteController {
     PacienteOutputDto criar(Paciente paciente);
 
     PacienteOutputDto buscarPorCpf(String cpf) throws EntidadeNaoLocalizada;
-    PacienteOutputDto validarPaciente(String email, String senha) throws EntidadeNaoLocalizada;
+    PacienteOutputDto validarPaciente(String cpf, String senha) throws EntidadeNaoLocalizada;
 
     void editar(Paciente paciente);
 

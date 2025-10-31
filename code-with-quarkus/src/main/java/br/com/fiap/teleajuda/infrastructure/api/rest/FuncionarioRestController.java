@@ -34,10 +34,10 @@ public class FuncionarioRestController {
     }
 
     @GET
-    @Path("validar/{email}/{senha}")
-    public Response validarFuncionario(@PathParam("email") String email, @PathParam("senha") String senha) {
+    @Path("validar/{cpf}/{senha}")
+    public Response validarFuncionario(@PathParam("cpf") String cpf, @PathParam("senha") String senha) {
         try {
-            FuncionarioOutputDto cliente = this.funcionarioController.validarFuncionario(email, senha);
+            FuncionarioOutputDto cliente = this.funcionarioController.validarFuncionario(cpf, senha);
             return Response.ok(cliente).build();
         } catch (RuntimeException e) {
             return Response.status(Response.Status.NOT_FOUND).build();
