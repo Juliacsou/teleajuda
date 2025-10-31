@@ -38,7 +38,7 @@ public class FuncionarioServiceImpl implements FuncionarioService {
     public void editarFuncionario(Funcionario funcionario) {
         try {
             Funcionario funcionarioExistente = buscarPorCpf(funcionario.getCpf_funcionario());
-            funcionarioRepository.criarFuncionario(funcionario);
+            funcionarioRepository.editarFuncionario(funcionario);
         } catch (EntidadeNaoLocalizada e) {
             throw new FuncionarioUnsupportedOperation("Cliente não encontrado");
         }

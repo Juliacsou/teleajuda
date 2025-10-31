@@ -12,11 +12,11 @@ public interface TicketService {
 
     Ticket buscarPorId(int id) throws EntidadeNaoLocalizada;
     List<Ticket> exibirTodosTickets ();
-    List<Ticket> exibitTicketsPaciente (Paciente paciente);
-    List<Ticket> exibitTicketsFuncionario (Funcionario funcionario);
+    List<Ticket> exibitTicketsPaciente (String cpf);
+    List<Ticket> exibitTicketsFuncionario (String cpf);
 
-    void editarDescricaoTicket(String problema, int id);
-    void responder(String resposta, int idTicket);
+    void editarDescricaoTicket(Ticket ticket);
+    void responder(Ticket ticket);
     void fecharTicket(int id);
     void abrirTicket(int id);
 

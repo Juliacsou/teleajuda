@@ -5,6 +5,8 @@ import br.com.fiap.teleajuda.domain.model.PesquisaSatisfacao;
 import br.com.fiap.teleajuda.domain.model.Paciente;
 import br.com.fiap.teleajuda.domain.repository.PesquisaRepository;
 import br.com.fiap.teleajuda.infrastructure.exceptions.InfraestruturaException;
+
+import javax.swing.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +23,7 @@ public class JdbcPesquisaRepository implements PesquisaRepository {
         public PesquisaSatisfacao criar(PesquisaSatisfacao pesquisa) {
             String sql = """
                 INSERT INTO T_TAJ_PESQUISA_SATIS (NT_APP, NT_SITE, NT_SUPORTE, DT_PESQUISA, PACIENTE_CPF_PACIENTE)
-                VALUES (?, ?, ?, TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS', ?)
+                VALUES (?, ?, ?, ?, ?)
                 """;
 
         try (Connection conn = this.databaseConnection.getConnection();
@@ -30,7 +32,10 @@ public class JdbcPesquisaRepository implements PesquisaRepository {
             stmt.setInt(1, pesquisa.getNt_app());
             stmt.setInt(2, pesquisa.getNt_site());
             stmt.setInt(3, pesquisa.getNt_suporte());
-            stmt.setString(4, pesquisa.getPaciente().getCpf_paciente());
+            Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
+            System.out.println(currentTimestamp.toString());
+            stmt.setString(4, currentTimestamp.toString());
+            stmt.setString(5, pesquisa.getPaciente().getCpf_paciente());
 
             int affected = stmt.executeUpdate();
             if (affected == 0) {
@@ -79,7 +84,7 @@ public class JdbcPesquisaRepository implements PesquisaRepository {
     }
 
     @Override
-    public List<PesquisaSatisfacao> exibirPesquisasPaciente(Paciente paciente) {
+    public List<PesquisaSatisfacao> exibirPesquisasPaciente(String cpf) {
         final String sql = """
             SELECT ID_PESQUISA_SATIS, NT_APP, NT_SITE, NT_SUPORTE, DT_PESQUISA
             FROM T_TAJ_PESQUISA_SATIS
@@ -92,7 +97,7 @@ public class JdbcPesquisaRepository implements PesquisaRepository {
         try (Connection conn = databaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, paciente.getCpf_paciente());
+            stmt.setString(1, cpf);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
@@ -102,6 +107,8 @@ public class JdbcPesquisaRepository implements PesquisaRepository {
                     int ntSuporte = rs.getInt("NT_SUPORTE");
                     String dtPesq = rs.getString("DT_PESQUISA");
 
+                    Paciente paciente = new Paciente();
+                    paciente.setCpf_paciente(cpf);
                     PesquisaSatisfacao pesquisa = new PesquisaSatisfacao(id, ntApp, ntSite, ntSuporte, dtPesq, paciente);
                     pesquisas.add(pesquisa);
                 }

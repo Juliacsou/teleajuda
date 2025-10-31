@@ -13,7 +13,9 @@ public class Ticket {
     private Paciente paciente;
     private Funcionario funcionario;
 
-    public Ticket(int id_ticket, String assunto, String descricao, String resposta, String dt_abertura, String dt_fechamento, String status, Paciente paciente) {
+    public Ticket() {}
+
+    public Ticket(int id_ticket, String assunto, String descricao, String resposta, String dt_abertura, String dt_fechamento, String status, Paciente paciente, Funcionario funcionario) {
         this.id_ticket = id_ticket;
         this.assunto = assunto;
         this.descricao = descricao;
@@ -22,6 +24,7 @@ public class Ticket {
         this.dt_fechamento = dt_fechamento;
         this.status = status;
         this.paciente = paciente;
+        this.funcionario = funcionario;
     }
 
     public Ticket(String assunto, String descricao, String dt_abertura, String status, Paciente paciente) {

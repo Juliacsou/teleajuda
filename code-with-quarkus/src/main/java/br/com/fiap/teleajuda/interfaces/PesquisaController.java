@@ -10,7 +10,7 @@ import java.util.List;
 public interface PesquisaController {
     PesquisaSatisfacao criar(PesquisaSatisfacao pesquisa);
 
-    List<PesquisaSatisfacao> exibirPesquisasPaciente (Paciente paciente);
+    List<PesquisaSatisfacao> exibirPesquisasPaciente (String cpf);
     PesquisaOutputDto buscarPorId(int id) throws EntidadeNaoLocalizada;
     List<PesquisaSatisfacao> exibirTodasPesquisas ();
 

@@ -28,17 +28,17 @@ public class JdbcFuncionarioRepository implements FuncionarioRepository {
             stmt.setString(1, funcionario.getCpf_funcionario());
             stmt.setString(2, funcionario.getNm_funcionario());
             stmt.setString(3, funcionario.getMail_funcionario());
-            stmt.setString(3, funcionario.getSenha());
+            stmt.setString(4, funcionario.getSenha());
 
             int affectedRows = stmt.executeUpdate();
             if (affectedRows == 0) {
-                throw new InfraestruturaException("Falha ao criar cliente, nenhuma linha afetada.");
+                throw new InfraestruturaException("Falha ao criar funcionario, nenhuma linha afetada.");
             }
 
             return funcionario;
 
         } catch (SQLException e) {
-            throw new InfraestruturaException("Erro ao salvar cliente: " + e.getMessage(), e);
+            throw new InfraestruturaException("Erro ao salvar funcionario: " + e.getMessage(), e);
         }
 
     }

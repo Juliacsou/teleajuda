@@ -6,6 +6,8 @@ public class Funcionario {
     private String mail_funcionario;
     private String senha;
 
+    public Funcionario() {}
+
     public Funcionario(String cpf_funcionario, String nm_funcionario, String mail_funcionario) {
         this.cpf_funcionario = cpf_funcionario;
         this.nm_funcionario = nm_funcionario;

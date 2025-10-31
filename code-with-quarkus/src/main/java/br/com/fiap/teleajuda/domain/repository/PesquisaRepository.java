@@ -9,7 +9,7 @@ import java.util.List;
 public interface PesquisaRepository {
     PesquisaSatisfacao criar(PesquisaSatisfacao pesquisa);
 
-    List<PesquisaSatisfacao> exibirPesquisasPaciente (Paciente paciente);
+    List<PesquisaSatisfacao> exibirPesquisasPaciente (String cpf);
     PesquisaSatisfacao buscarPorId(int id) throws EntidadeNaoLocalizada;
     List<PesquisaSatisfacao> exibirTodasPesquisas ();
 

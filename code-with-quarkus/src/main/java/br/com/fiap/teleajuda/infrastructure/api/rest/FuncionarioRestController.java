@@ -23,15 +23,59 @@ public class FuncionarioRestController {
     }
 
     @GET
-    @Path("/{cpf}")
+    @Path("/cpf/{cpf}")
     public Response buscarPorCpf(@PathParam("cpf") String cpf) {
         try {
-            FuncionarioOutputDto cliente = this.funcionarioController.buscarPorCpf(cpf);
-            return Response.ok(cliente).build();
+            FuncionarioOutputDto funcionario = this.funcionarioController.buscarPorCpf(cpf);
+            return Response.ok(funcionario).build();
         } catch (RuntimeException | EntidadeNaoLocalizada e) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
     }
+
+    @GET
+    @Path("validar/{email}/{senha}")
+    public Response validarFuncionario(@PathParam("email") String email, @PathParam("senha") String senha) {
+        try {
+            FuncionarioOutputDto cliente = this.funcionarioController.validarFuncionario(email, senha);
+            return Response.ok(cliente).build();
+        } catch (RuntimeException e) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+    }
+
+    @POST
+    public Response criarFuncionario(Funcionario funcionarioInput) {
+        try {
+            Funcionario funcionario = this.funcionarioController.criarFuncionario(funcionarioInput);
+            return Response.status(Response.Status.CREATED).entity(funcionario).build();
+        } catch (RuntimeException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+        }
+    }
+
+    @PUT
+    public Response editarFuncionario(Funcionario funcionarioInput) {
+        try {
+            this.funcionarioController.editarFuncionario(funcionarioInput);
+            return Response.status(Response.Status.ACCEPTED).build();
+        } catch (RuntimeException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+        }
+    }
+
+    @DELETE
+    @Path("/cpf/{cpf}")
+    public Response delete(@PathParam("cpf") String cpf) {
+        try {
+            this.funcionarioController.excluirFuncionario(cpf);
+            return Response.status(Response.Status.NO_CONTENT).build();
+        } catch (RuntimeException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+        }
+    }
+
+
 
 
 }

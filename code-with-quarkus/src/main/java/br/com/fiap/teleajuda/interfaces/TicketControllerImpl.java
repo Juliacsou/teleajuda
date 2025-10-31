@@ -10,6 +10,7 @@ import br.com.fiap.teleajuda.interfaces.dto.output.TicketOutputDto;
 import br.com.fiap.teleajuda.interfaces.mappers.TicketMapper;
 
 import java.util.List;
+import java.util.Objects;
 
 public class TicketControllerImpl implements TicketController{
 
@@ -36,33 +37,51 @@ public class TicketControllerImpl implements TicketController{
     }
 
     @Override
-    public List<Ticket> exibitTicketsPaciente(Paciente paciente) {
-        return ticketService.exibitTicketsPaciente(paciente);
+    public List<Ticket> exibitTicketsPaciente(String cpf) {
+        return ticketService.exibitTicketsPaciente(cpf);
     }
 
     @Override
-    public List<Ticket> exibitTicketsFuncionario(Funcionario funcionario) {
-        return ticketService.exibitTicketsFuncionario(funcionario);
+    public List<Ticket> exibitTicketsFuncionario(String cpf) {
+        return ticketService.exibitTicketsFuncionario(cpf);
     }
 
     @Override
-    public void editarDescricaoTicket(String problema, int id) {
-        ticketService.editarDescricaoTicket(problema, id);
+    public void editarDescricaoTicket(Ticket ticket) {
+        ticketService.editarDescricaoTicket(ticket);
     }
 
     @Override
-    public void responder(String resposta, int idTicket) {
-        ticketService.responder(resposta, idTicket);
+    public void responder(Ticket ticket) {
+        ticketService.responder(ticket);
     }
 
     @Override
     public void fecharTicket(int id) {
-        ticketService.fecharTicket(id);
+        try {
+            Ticket ticket = ticketService.buscarPorId(id);
+            if(Objects.equals(ticket.getStatus(), "F")){
+                throw new RuntimeException("Ticket já está fechado");
+            }else{
+                ticketService.fecharTicket(id);
+            }
+        } catch (EntidadeNaoLocalizada e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void abrirTicket(int id) {
-        ticketService.abrirTicket(id);
+        try {
+            Ticket ticket = ticketService.buscarPorId(id);
+            if(Objects.equals(ticket.getStatus(), "A")){
+                throw new RuntimeException("Ticket já está aberto");
+            }else{
+                ticketService.abrirTicket(id);
+            }
+        } catch (EntidadeNaoLocalizada e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

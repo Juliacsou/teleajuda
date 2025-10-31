@@ -5,7 +5,7 @@ import br.com.fiap.teleajuda.domain.model.Funcionario;
 import br.com.fiap.teleajuda.interfaces.dto.output.FuncionarioOutputDto;
 
 public interface FuncionarioController {
-    FuncionarioOutputDto criarFuncionario(Funcionario funcionario);
+    Funcionario criarFuncionario(Funcionario funcionario);
 
     FuncionarioOutputDto buscarPorCpf(String cpf) throws EntidadeNaoLocalizada;
     FuncionarioOutputDto validarFuncionario (String email, String senha);

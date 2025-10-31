@@ -15,9 +15,8 @@ public class FuncionarioControllerImpl implements FuncionarioController {
     }
 
     @Override
-    public FuncionarioOutputDto criarFuncionario(Funcionario funcionario) {
-        Funcionario novoFunc = funcionarioService.criarFuncionario(funcionario);
-        return FuncionarioMapper.toDto(novoFunc);
+    public Funcionario criarFuncionario(Funcionario funcionario) {
+        return funcionarioService.criarFuncionario(funcionario);
     }
 
     @Override

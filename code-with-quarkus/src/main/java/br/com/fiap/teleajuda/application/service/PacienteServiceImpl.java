@@ -39,7 +39,7 @@ public class PacienteServiceImpl implements PacienteService {
     public void editar(Paciente paciente) {
         try {
             Paciente pacienteExistente = buscarPorCpf(paciente.getCpf_paciente());
-            pacienteRepository.criar(paciente);
+            pacienteRepository.editar(paciente);
         } catch (EntidadeNaoLocalizada e) {
             throw new PacienteUnsupportedOperation("Paciente não encontrado");
         }

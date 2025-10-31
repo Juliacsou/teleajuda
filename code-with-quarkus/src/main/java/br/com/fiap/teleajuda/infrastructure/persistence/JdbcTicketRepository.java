@@ -32,7 +32,7 @@ public class JdbcTicketRepository implements TicketRepository {
 
             stmt.setString(1, ticket.getAssunto());
             stmt.setString(2, ticket.getDescricao());
-            stmt.setString(3, ticket.getStatus());
+            stmt.setString(3, "A");
             stmt.setString(4, ticket.getPaciente().getCpf_paciente());
 
             int affectedRows = stmt.executeUpdate();
@@ -59,12 +59,13 @@ public class JdbcTicketRepository implements TicketRepository {
         final String sql = """
             SELECT t.ID_TICKET, t.ASSUNTO, t.DESCRICAO, t.RESPOSTA, t.DT_ABERTURA, t.DT_FECHAMENTO, t.STATUS, t.PACIENTE_CPF_PACIENTE,
                 p.CPF_PACIENTE, p.NM_PACIENTE, p.TEL_PACIENTE, p.MAIL_PACIENTE, p.RGHC, p.DT_NASC_PACIENTE,
-                f.NM_FUNCIONARIO AS FUNCIONARIO_NOME
+                f.NM_FUNCIONARIO
             FROM T_TAJ_TICKET t
             JOIN T_TAJ_PACIENTE p ON t.PACIENTE_CPF_PACIENTE = p.CPF_PACIENTE
             LEFT JOIN T_TAJ_FUNCIONARIO f ON t.FUNCIONARIO_CPF_FUNCIONARIO = f.CPF_FUNCIONARIO
             WHERE t.ID_TICKET = ?
         """;
+
 
             try (Connection conn = this.databaseConnection.getConnection();
                  PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -72,6 +73,7 @@ public class JdbcTicketRepository implements TicketRepository {
                 stmt.setInt(1, id);
 
                 try (ResultSet rs = stmt.executeQuery()) {
+
                     if (rs.next()) {
                         return mapearTicket(rs);
                     }
@@ -89,7 +91,7 @@ public class JdbcTicketRepository implements TicketRepository {
         final String sql = """
             SELECT t.ID_TICKET, t.ASSUNTO, t.DESCRICAO, t.RESPOSTA, t.DT_ABERTURA, t.DT_FECHAMENTO, t.STATUS, t.PACIENTE_CPF_PACIENTE,
                 p.CPF_PACIENTE, p.NM_PACIENTE, p.TEL_PACIENTE, p.MAIL_PACIENTE, p.RGHC, p.DT_NASC_PACIENTE,
-                f.NM_FUNCIONARIO AS FUNCIONARIO_NOME
+                f.NM_FUNCIONARIO
             FROM T_TAJ_TICKET t
             JOIN T_TAJ_PACIENTE p ON t.PACIENTE_CPF_PACIENTE = p.CPF_PACIENTE
             LEFT JOIN T_TAJ_FUNCIONARIO f ON t.FUNCIONARIO_CPF_FUNCIONARIO = f.CPF_FUNCIONARIO
@@ -113,23 +115,19 @@ public class JdbcTicketRepository implements TicketRepository {
     }
 
     @Override
-    public List<Ticket> exibitTicketsPaciente(Paciente paciente) {
+    public List<Ticket> exibitTicketsPaciente(String cpf) {
         final String sql = """
             SELECT t.ID_TICKET, t.ASSUNTO, t.DESCRICAO, t.RESPOSTA, t.DT_ABERTURA, t.DT_FECHAMENTO, t.STATUS, t.PACIENTE_CPF_PACIENTE,
-                f.NM_FUNCIONARIO AS FUNCIONARIO_NOME
+                f.NM_FUNCIONARIO
             FROM T_TAJ_TICKET t
             LEFT JOIN T_TAJ_FUNCIONARIO f ON t.FUNCIONARIO_CPF_FUNCIONARIO = f.CPF_FUNCIONARIO
             WHERE t.PACIENTE_CPF_PACIENTE = ?
             ORDER BY t.ID_TICKET DESC
         """;
-
         List<Ticket> tickets = new ArrayList<>();
-
         try (Connection conn = this.databaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setString(1, paciente.getCpf_paciente());
-
+            stmt.setString(1, cpf);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 int idTicket        = rs.getInt("ID_TICKET");
@@ -139,10 +137,14 @@ public class JdbcTicketRepository implements TicketRepository {
                 String dtAbertura   = rs.getString("DT_ABERTURA");
                 String dtFechamento = rs.getString("DT_FECHAMENTO");
                 String status       = rs.getString("STATUS");
-                String funcNome     = rs.getString("FUNCIONARIO_NOME");
+                String funcNome     = rs.getString("NM_FUNCIONARIO");
 
-                Ticket ticket = new Ticket(idTicket, assunto, descricao, resposta, dtAbertura, dtFechamento, status, paciente);
-                ticket.getFuncionario().setNm_funcionario(funcNome);
+                Paciente paciente = new Paciente();
+                paciente.setCpf_paciente(cpf);
+                Funcionario funcionario = new Funcionario();
+                funcionario.setNm_funcionario(funcNome);
+
+                Ticket ticket = new Ticket(idTicket, assunto, descricao, resposta, dtAbertura, dtFechamento, status, paciente, funcionario);
 
                 tickets.add(ticket);
             }
@@ -153,11 +155,11 @@ public class JdbcTicketRepository implements TicketRepository {
     }
 
     @Override
-    public List<Ticket> exibitTicketsFuncionario(Funcionario funcionario) {
+    public List<Ticket> exibitTicketsFuncionario(String cpf) {
         final String sql = """
             SELECT t.ID_TICKET, t.ASSUNTO, t.DESCRICAO, t.RESPOSTA, t.DT_ABERTURA, t.DT_FECHAMENTO, t.STATUS, t.PACIENTE_CPF_PACIENTE,
                 p.CPF_PACIENTE, p.NM_PACIENTE, p.TEL_PACIENTE, p.MAIL_PACIENTE, p.RGHC, p.DT_NASC_PACIENTE,
-                f.NM_FUNCIONARIO AS FUNCIONARIO_NOME
+                f.NM_FUNCIONARIO
             FROM T_TAJ_TICKET t
             JOIN T_TAJ_PACIENTE p ON t.PACIENTE_CPF_PACIENTE = p.CPF_PACIENTE
             LEFT JOIN T_TAJ_FUNCIONARIO f ON t.FUNCIONARIO_CPF_FUNCIONARIO = f.CPF_FUNCIONARIO
@@ -170,7 +172,7 @@ public class JdbcTicketRepository implements TicketRepository {
         try (Connection conn = this.databaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, funcionario.getCpf_funcionario()); // Ajuste se seu getter for diferente
+            stmt.setString(1, cpf);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
@@ -188,18 +190,18 @@ public class JdbcTicketRepository implements TicketRepository {
     }
 
     @Override
-        public void editarDescricaoTicket(String descricao, int id) {
-            final String sql = """
-                UPDATE T_TAJ_TICKET
-                SET DESCRICAO = ?
-                WHERE ID_TICKET = ?
-            """;
+        public void editarDescricaoTicket(Ticket ticket) {
+        final String sql = """
+            UPDATE T_TAJ_TICKET
+            SET DESCRICAO = ?
+            WHERE ID_TICKET = ?
+        """;
 
             try (Connection conn = databaseConnection.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-                stmt.setString(1, descricao);
-                stmt.setInt(2, id);
+                stmt.setString(1, ticket.getDescricao());
+                stmt.setInt(2, ticket.getId_ticket());
 
                 int affectedRows = stmt.executeUpdate();
                 if (affectedRows == 0) {
@@ -212,18 +214,19 @@ public class JdbcTicketRepository implements TicketRepository {
         }
 
         @Override
-        public void responder(String resposta, int idTicket) {
+        public void responder(Ticket ticket) {
             final String sql = """
                 UPDATE T_TAJ_TICKET
-                SET RESPOSTA = ?
+                SET RESPOSTA = ?, FUNCIONARIO_CPF_FUNCIONARIO = ?
                 WHERE ID_TICKET = ?
                 """;
 
             try (Connection conn = databaseConnection.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-                stmt.setString(1, resposta);
-                stmt.setInt(2, idTicket);
+                stmt.setString(1, ticket.getResposta());
+                stmt.setString(2, ticket.getFuncionario().getCpf_funcionario());
+                stmt.setInt(3, ticket.getId_ticket());
 
                 int affectedRows = stmt.executeUpdate();
                 if (affectedRows == 0) {
@@ -239,7 +242,7 @@ public class JdbcTicketRepository implements TicketRepository {
         public void fecharTicket(int id) {
             String sql = """
                 UPDATE T_TAJ_TICKET
-                SET STATUS = 'F', DT_FECHAMENTO = TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+                SET STATUS = 'F', DT_FECHAMENTO = SYSDATE
                 WHERE ID_TICKET = ?
                 """;
 
@@ -321,11 +324,12 @@ public class JdbcTicketRepository implements TicketRepository {
         String rghc = rs.getString("RGHC");
         String dataNasc = rs.getString("DT_NASC_PACIENTE");
 
-        String funcionarioNome = rs.getString("FUNCIONARIO_NOME"); // pode vir null
+        String funcionarioNome = rs.getString("NM_FUNCIONARIO");
 
         Paciente paciente = new Paciente(cpf, nome, telefone, email, rghc, dataNasc);
-        Ticket ticket = new Ticket(idTicket, assunto, descricao, resposta, dtAbertura, dtFechamento, status, paciente);
-        ticket.getFuncionario().setNm_funcionario(funcionarioNome);
+        Funcionario funcionario = new Funcionario();
+        funcionario.setNm_funcionario(funcionarioNome);
+        Ticket ticket = new Ticket(idTicket, assunto, descricao, resposta, dtAbertura, dtFechamento, status, paciente, funcionario);
 
         return ticket;
 

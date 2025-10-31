@@ -33,9 +33,4 @@ public class DatabaseConfig {
         return new JdbcTicketRepository (databaseConnection);
     }
 
-    @ApplicationScoped
-    public LoginRepository userRepository(DatabaseConnection databaseConnection) {
-        return new JdbcLoginRepository(databaseConnection);
-    }
-
 }

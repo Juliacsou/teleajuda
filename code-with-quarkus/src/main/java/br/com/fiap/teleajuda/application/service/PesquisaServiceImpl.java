@@ -27,8 +27,8 @@ public class PesquisaServiceImpl implements PesquisaService {
     }
 
     @Override
-    public List<PesquisaSatisfacao> exibirPesquisasPaciente(Paciente paciente) {
-        return pesquisaRepository.exibirPesquisasPaciente(paciente);
+    public List<PesquisaSatisfacao> exibirPesquisasPaciente(String cpf) {
+        return pesquisaRepository.exibirPesquisasPaciente(cpf);
     }
 
     @Override
@@ -45,7 +45,7 @@ public class PesquisaServiceImpl implements PesquisaService {
     public void editar(PesquisaSatisfacao pesquisa) {
         try {
             PesquisaSatisfacao pesquisaExistente = pesquisaRepository.buscarPorId(pesquisa.getId_pesquisa_satis());
-            pesquisaRepository.criar(pesquisa);
+            pesquisaRepository.editar(pesquisa);
         } catch (EntidadeNaoLocalizada e) {
             throw new PesquisaUnsupportedOperation("Erro ao editar pesquisa de satisfação");
         }

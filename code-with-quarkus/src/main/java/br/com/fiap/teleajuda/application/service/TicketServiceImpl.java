@@ -39,30 +39,30 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
-    public List<Ticket> exibitTicketsPaciente(Paciente paciente) {
-        return ticketRepository.exibitTicketsPaciente(paciente);
+    public List<Ticket> exibitTicketsPaciente(String cpf) {
+        return ticketRepository.exibitTicketsPaciente(cpf);
     }
 
     @Override
-    public List<Ticket> exibitTicketsFuncionario(Funcionario funcionario) {
-        return ticketRepository.exibitTicketsFuncionario(funcionario);
+    public List<Ticket> exibitTicketsFuncionario(String cpf) {
+        return ticketRepository.exibitTicketsFuncionario(cpf);
     }
 
     @Override
-    public void editarDescricaoTicket(String problema, int id) {
+    public void editarDescricaoTicket(Ticket ticket) {
         try {
-            Ticket ticketExistente = buscarPorId(id);
-            ticketRepository.editarDescricaoTicket(problema, id);
+            Ticket ticketExistente = buscarPorId(ticket.getId_ticket());
+            ticketRepository.editarDescricaoTicket(ticket);
         } catch (EntidadeNaoLocalizada e) {
-            throw new TicketUnsupportedOperation("Erro ao editar descrição");
+            throw new TicketUnsupportedOperation("Ticket não existe");
         }
     }
 
     @Override
-    public void responder(String resposta, int idTicket) {
+    public void responder(Ticket ticket) {
         try {
-            Ticket ticketExistente = buscarPorId(idTicket);
-            ticketRepository.responder(resposta, idTicket);
+            Ticket ticketExistente = buscarPorId(ticket.getId_ticket());
+            ticketRepository.responder(ticket);
         } catch (EntidadeNaoLocalizada e) {
             throw new TicketUnsupportedOperation("Erro ao responder ticket");
         }

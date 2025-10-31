@@ -23,8 +23,8 @@ public class PesquisaControllerImpl implements PesquisaController{
     }
 
     @Override
-    public List<PesquisaSatisfacao> exibirPesquisasPaciente(Paciente paciente) {
-        return pesquisaService.exibirPesquisasPaciente(paciente);
+    public List<PesquisaSatisfacao> exibirPesquisasPaciente(String cpf) {
+        return pesquisaService.exibirPesquisasPaciente(cpf);
     }
 
     @Override

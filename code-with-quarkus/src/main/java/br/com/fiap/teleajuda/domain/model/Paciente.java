@@ -9,8 +9,8 @@ public class Paciente {
     private String dt_nasc_paciente;
     private String senha_paciente;
 
+    public Paciente() {}
 
-    //CONSTRUTORES
     public Paciente(String cpf_paciente, String nm_paciente, String tel_paciente, String mail_paciente, String rghc, String dt_nasc_paciente) {
         this.cpf_paciente = cpf_paciente;
         this.nm_paciente = nm_paciente;
@@ -30,7 +30,6 @@ public class Paciente {
         this.senha_paciente = senha_paciente;
     }
 
-    //GETTERS E SETTERS
     public String getCpf_paciente() {
         return cpf_paciente;
     }

@@ -8,7 +8,8 @@ public class PesquisaSatisfacao {
     private String dt_pesquisa;
     private Paciente paciente;
 
-    //Contrutor
+    public PesquisaSatisfacao() {}
+
     public PesquisaSatisfacao(int id_pesquisa_satis, int nt_app, int nt_site, int nt_suporte, String dt_pesquisa, Paciente paciente) {
         this.id_pesquisa_satis = id_pesquisa_satis;
         this.nt_app = nt_app;
@@ -18,8 +19,6 @@ public class PesquisaSatisfacao {
         this.paciente = paciente;
     }
 
-
-    //Getters e Setters
     public int getId_pesquisa_satis() {return id_pesquisa_satis;}
     public void setId_pesquisa_satis(int id_pesquisa_satis) {this.id_pesquisa_satis = id_pesquisa_satis;}
     public int getNt_app() {return nt_app;}
@@ -33,7 +32,7 @@ public class PesquisaSatisfacao {
     public Paciente getPaciente() {return paciente;}
     public void setPaciente(Paciente paciente) {this.paciente = paciente;}
 
-    //Metodos
+
     public boolean isValidNotaApp(int notaApp){
         if(notaApp < 0 || notaApp > 10){
             return false;
