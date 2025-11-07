@@ -44,7 +44,6 @@ public class PacienteRestController {
     }
 
     @GET
-    @CrossOrigin(origins = "http://localhost:5173")
     @Path("/validar/{cpf}/{senha}")
     public Response validarPaciente(@PathParam("cpf") String cpf, @PathParam("senha") String senha) {
         try {
