@@ -7,6 +7,7 @@ import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.Provider;
 
 import java.io.IOException;
@@ -26,9 +27,25 @@ public class ApiKeyFilter implements ContainerRequestFilter {
 
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
-        final String apiKey = requestContext.getHeaderString(API_KEY_HEADER);
-        if(!apiKeyValidator.isValid(apiKey)) {
-            throw new NotAuthorizedException("Invalid API key");
+        // 1. Bypass para o Swagger
+        if (requestContext.getUriInfo().getPath().contains("swagger") || requestContext.getUriInfo().getPath().contains("q/swagger-ui")) {
+            return;
+        }
+
+        // 2. [LINHA MAIS IMPORTANTE] Bypass para requisições OPTIONS (Preflight do CORS)
+        // Se este "if" não estiver aqui, o CORS VAI FALHAR.
+        if (requestContext.getMethod().equalsIgnoreCase("OPTIONS")) {
+            return;
+        }
+
+        // 3. Validação da API Key
+        String apiKey = requestContext.getHeaderString("X-API-KEY");
+        if (apiKey == null || !apiKeyValidator.isValid(apiKey)) {
+            requestContext.abortWith(
+                    Response.status(Response.Status.UNAUTHORIZED)
+                            .entity("API Key inválida ou ausente.")
+                            .build());
+
         }
     }
 }
