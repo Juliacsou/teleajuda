@@ -26,23 +26,36 @@ public class ApiKeyFilter implements ContainerRequestFilter {
     }
 
     @Override
-    public void filter(ContainerRequestContext requestContext) throws IOException {
-        // 1. Verificar se é uma requisição OPTIONS (Preflight)
-        if ("OPTIONS".equalsIgnoreCase(requestContext.getMethod())) {
-            // Se for OPTIONS, retorna imediatamente.
-            // O Quarkus agora será responsável por adicionar os headers CORS.
-            return;
-        }
+public void filter(ContainerRequestContext requestContext) throws IOException {
 
-        // 2. Continua com a verificação de segurança para todos os outros métodos (GET, POST, etc.)
-        final String apiKey = requestContext.getHeaderString(API_KEY_HEADER);
-        if (!apiKeyValidator.isValid(apiKey)) {
-            // Lança 401 Unauthorized para requisições bloqueadas
-            requestContext.abortWith(
-                    Response.status(Response.Status.UNAUTHORIZED)
-                            .entity("Invalid API key")
-                            .build()
-            );
-        }
+    // 1. Verificar se é uma requisição OPTIONS (Preflight)
+    if ("OPTIONS".equalsIgnoreCase(requestContext.getMethod())) {
+
+        // ** SOLUÇÃO DEFINITIVA: ABORTAR COM RESPOSTA 204 E CABEÇALHOS CORS **
+        // Embora o Quarkus deva gerenciar isso, esta etapa garante que a resposta
+        // de preflight não seja bloqueada pelo seu filtro ou por outras camadas.
+        requestContext.abortWith(
+            Response.ok()
+                // Garante que o frontend receba o cabeçalho 'Allow-Origin'
+                .header("Access-Control-Allow-Origin", requestContext.getHeaderString("Origin"))
+                // Garante que o navegador saiba que o X-API-Key é aceito
+                .header("Access-Control-Allow-Headers", "accept,authorization,content-type,x-requested-with,x-api-key")
+                .header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS")
+                .status(Response.Status.NO_CONTENT) // 204 No Content é o padrão para preflight
+                .build()
+        );
+        return;
     }
+
+    // 2. Lógica de autenticação para todos os outros métodos (GET, POST, etc.)
+    final String apiKey = requestContext.getHeaderString(API_KEY_HEADER);
+    if (!apiKeyValidator.isValid(apiKey)) {
+        requestContext.abortWith(
+                Response.status(Response.Status.UNAUTHORIZED)
+                        .entity("Invalid API key")
+                        .build()
+                );
+        }
+}
+
 }
