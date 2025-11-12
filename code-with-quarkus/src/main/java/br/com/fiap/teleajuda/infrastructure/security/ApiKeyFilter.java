@@ -13,7 +13,7 @@ import jakarta.ws.rs.ext.Provider;
 import java.io.IOException;
 
 @Provider
-@Priority(Priorities.AUTHENTICATION)
+@Priority(Priorities.ENTITY_CODER)
 public class ApiKeyFilter implements ContainerRequestFilter {
 
     private static final String API_KEY_HEADER = "X-API-Key";
