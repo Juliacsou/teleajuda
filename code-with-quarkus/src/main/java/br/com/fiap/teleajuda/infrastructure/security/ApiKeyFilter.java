@@ -27,15 +27,22 @@ public class ApiKeyFilter implements ContainerRequestFilter {
 
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
-        // SOLUÇÃO: Ignorar a verificação para o método OPTIONS (o preflight CORS)
-        if (requestContext.getMethod().equalsIgnoreCase("OPTIONS")) {
+        // 1. Verificar se é uma requisição OPTIONS (Preflight)
+        if ("OPTIONS".equalsIgnoreCase(requestContext.getMethod())) {
+            // Se for OPTIONS, retorna imediatamente.
+            // O Quarkus agora será responsável por adicionar os headers CORS.
             return;
         }
 
+        // 2. Continua com a verificação de segurança para todos os outros métodos (GET, POST, etc.)
         final String apiKey = requestContext.getHeaderString(API_KEY_HEADER);
-        if(!apiKeyValidator.isValid(apiKey)) {
-            throw new NotAuthorizedException("Invalid API key");
+        if (!apiKeyValidator.isValid(apiKey)) {
+            // Lança 401 Unauthorized para requisições bloqueadas
+            requestContext.abortWith(
+                    Response.status(Response.Status.UNAUTHORIZED)
+                            .entity("Invalid API key")
+                            .build()
+            );
         }
-
     }
 }
